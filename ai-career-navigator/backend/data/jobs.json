@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "company": "TechCorp",
+    "role": "Frontend Developer",
+    "required_skills": ["React", "JavaScript", "TypeScript", "Tailwind CSS", "HTML", "CSS"],
+    "apply_url": "https://example.com/apply/1"
+  },
+  {
+    "id": 2,
+    "company": "DataSystems Inc.",
+    "role": "Backend Engineer",
+    "required_skills": ["Python", "FastAPI", "SQL", "PostgreSQL", "Docker", "Redis"],
+    "apply_url": "https://example.com/apply/2"
+  },
+  {
+    "id": 3,
+    "company": "AI Innovations",
+    "role": "Data Scientist",
+    "required_skills": ["Python", "Pandas", "NumPy", "Scikit-learn", "SQL", "Machine Learning"],
+    "apply_url": "https://example.com/apply/3"
+  },
+  {
+    "id": 4,
+    "company": "CloudWorks",
+    "role": "DevOps Engineer",
+    "required_skills": ["Linux", "Bash", "Docker", "Kubernetes", "AWS", "CI/CD"],
+    "apply_url": "https://example.com/apply/4"
+  },
+  {
+    "id": 5,
+    "company": "WebSolutions",
+    "role": "Full Stack Developer",
+    "required_skills": ["JavaScript", "Node.js", "React", "PostgreSQL", "REST API", "Git"],
+    "apply_url": "https://example.com/apply/5"
+  },
+  {
+    "id": 6,
+    "company": "DeepMindTech",
+    "role": "ML Engineer",
+    "required_skills": ["Python", "TensorFlow", "PyTorch", "Deep Learning", "Docker", "AWS"],
+    "apply_url": "https://example.com/apply/6"
+  },
+  {
+    "id": 7,
+    "company": "Global Systems",
+    "role": "Cloud Architect",
+    "required_skills": ["AWS", "GCP", "Azure", "Kubernetes", "Linux", "Docker"],
+    "apply_url": "https://example.com/apply/7"
+  },
+  {
+    "id": 8,
+    "company": "QualityFirst",
+    "role": "QA Engineer",
+    "required_skills": ["Python", "JavaScript", "CI/CD", "Agile", "REST API", "Linux"],
+    "apply_url": "https://example.com/apply/8"
+  },
+  {
+    "id": 9,
+    "company": "Productive Analytics",
+    "role": "Product Analyst",
+    "required_skills": ["SQL", "Excel", "Tableau", "Power BI", "Agile", "Scrum"],
+    "apply_url": "https://example.com/apply/9"
+  },
+  {
+    "id": 10,
+    "company": "AppMakers",
+    "role": "Mobile Developer",
+    "required_skills": ["Swift", "Kotlin", "React Native", "Flutter", "REST API", "Git"],
+    "apply_url": "https://example.com/apply/10"
+  }
+]
