@@ -1,7 +1,7 @@
-// src/App.jsx - Main application layout and state management
 import React, { useState, useEffect } from 'react';
 import ResumeUpload from './components/ResumeUpload';
 import JobDashboard from './components/JobDashboard';
+import Phase2Dashboard from './components/Phase2Dashboard';
 import { fetchJobs } from './api/client';
 
 function App() {
@@ -10,6 +10,11 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Phase 2 State
+  const [analysis, setAnalysis] = useState(null);
+  const [recommendations, setRecommendations] = useState(null);
+  const [suggestions, setSuggestions] = useState(null);
+
   const loadAllJobs = async () => {
     setLoading(true);
     try {
@@ -17,6 +22,11 @@ function App() {
       setJobs(data);
       setIsMatched(false);
       setError(null);
+      
+      // Reset Phase 2 states
+      setAnalysis(null);
+      setRecommendations(null);
+      setSuggestions(null);
     } catch (err) {
       setError("Failed to load available jobs. Ensure backend is running.");
       console.error(err);
@@ -29,34 +39,59 @@ function App() {
     loadAllJobs();
   }, []);
 
-  const handleMatchesFound = (matchedJobs) => {
-    setJobs(matchedJobs);
-    setIsMatched(true);
+  const handleUploadComplete = (data) => {
+    setAnalysis(data.analysis);
+    setRecommendations(data.recommendations);
+    setSuggestions(data.suggestions);
+    
+    // Convert top_jobs to the format JobDashboard expects
+    if (data.recommendations && data.recommendations.top_jobs) {
+      setJobs(prevJobs => {
+        const mappedJobs = data.recommendations.top_jobs.map(job => {
+          const originalJob = prevJobs.find(j => j.id.toString() === job.job_id.toString());
+          return {
+            id: job.job_id,
+            role: job.role,
+            company: job.company,
+            apply_url: job.apply_url,
+            match_percentage: job.match_percentage !== undefined ? job.match_percentage : job.composite_score, // Fallback if backend not restarted
+            composite_score: job.composite_score,
+            reason: job.reason,
+            required_skills: originalJob?.required_skills || []
+          };
+        });
+        return mappedJobs;
+      });
+      setIsMatched(true);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Decorative background blobs */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob pointer-events-none"></div>
-      <div className="absolute top-0 right-1/4 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000 pointer-events-none"></div>
-      <div className="absolute -bottom-8 left-1/2 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000 pointer-events-none"></div>
+    <div className="min-h-screen bg-slate-950 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden font-sans text-slate-200">
+      {/* Dynamic ambient background blobs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-purple-600/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob pointer-events-none"></div>
+      <div className="absolute top-[20%] right-[-10%] w-[35vw] h-[35vw] bg-cyan-600/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000 pointer-events-none"></div>
+      <div className="absolute -bottom-[-10%] left-[20%] w-[45vw] h-[45vw] bg-blue-600/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-4000 pointer-events-none"></div>
 
       <div className="relative z-10">
-        <header className="max-w-7xl mx-auto mb-16 text-center">
-          <div className="inline-block mb-4 px-4 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 shadow-sm">
-            <span className="text-xs font-bold text-indigo-600 tracking-wider uppercase">AI-Powered Recruiting</span>
+        <header className="max-w-7xl mx-auto mb-16 text-center animate-fadeIn">
+          <div className="inline-block mb-6 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)] backdrop-blur-md">
+            <span className="text-xs font-bold text-cyan-400 tracking-widest uppercase flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulseGlow"></span>
+              AI-Powered Recruiting
+            </span>
           </div>
-          <h1 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight mb-6 pb-2">
+          <h1 className="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 tracking-tight mb-6 pb-2 drop-shadow-sm">
             AI Career Navigator
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto font-medium">
+          <p className="text-xl text-slate-400 max-w-2xl mx-auto font-light leading-relaxed">
             Upload your resume and let our intelligent engine instantly match your skills with the perfect opportunities.
           </p>
         </header>
 
-        <main className="max-w-7xl mx-auto space-y-12 relative">
+        <main className="max-w-7xl mx-auto space-y-10 relative">
           <ResumeUpload 
-            onMatchesFound={handleMatchesFound} 
+            onUploadComplete={handleUploadComplete} 
             onJobsReset={loadAllJobs} 
           />
           
@@ -75,16 +110,29 @@ function App() {
             </div>
           )}
 
-          {loading ? (
-            <div className="flex justify-center items-center py-20">
-              <div className="relative">
-                <div className="w-12 h-12 rounded-full absolute border-4 border-solid border-gray-200"></div>
-                <div className="w-12 h-12 rounded-full animate-spin absolute border-4 border-solid border-indigo-600 border-t-transparent"></div>
-              </div>
+          {!error && isMatched && analysis && (
+            <div className="animate-fadeIn space-y-10">
+              <Phase2Dashboard 
+                resumeText={analysis.raw_text} 
+                initialAnalysis={analysis} 
+                initialRecommendations={recommendations}
+                onReanalyze={() => {
+                  setIsMatched(false);
+                  setAnalysis(null);
+                }}
+              />
+              <JobDashboard 
+                jobs={jobs} 
+                isMatched={isMatched} 
+                resumeSkills={analysis.skills} 
+              />
             </div>
-          ) : (
-            !error && <JobDashboard jobs={jobs} isMatched={isMatched} />
           )}
+
+          {!error && !isMatched && !loading && (
+            <JobDashboard jobs={jobs} isMatched={isMatched} />
+          )}
+
         </main>
       </div>
     </div>

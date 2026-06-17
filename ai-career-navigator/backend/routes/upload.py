@@ -23,7 +23,7 @@ async def upload_resume(file: UploadFile = File(...)):
         # Extract skills from text
         extracted_skills = extract_skills(text)
         
-        return {"extracted_skills": extracted_skills}
+        return {"extracted_skills": extracted_skills, "resume_text": text}
         
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
