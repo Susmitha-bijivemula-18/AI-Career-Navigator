@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: ai-career-navigator-backend
+    env: python
+    region: ohio
+    rootDir: backend
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: SUPABASE_DB_URL
+        sync: false
+      - key: REDIS_URL
+        fromDatabase:
+          name: ai-career-navigator-redis
+          property: connectionString
+
+  - type: redis
+    name: ai-career-navigator-redis
+    region: ohio
+    plan: free
