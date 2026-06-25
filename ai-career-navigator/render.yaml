@@ -26,3 +26,4 @@ services:
     name: ai-career-navigator-redis
     region: ohio
     plan: free
+    ipAllowList: []
