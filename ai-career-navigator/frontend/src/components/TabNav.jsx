@@ -8,10 +8,10 @@ export default function TabNav({ tabs, activeTab, onChange }) {
         <button
           key={tab}
           onClick={() => onChange(tab)}
-          className={`px-4 py-1.5 rounded-full text-sm transition-colors ${
+          className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors whitespace-nowrap ${
             activeTab === tab
-              ? 'bg-gray-900 text-white border border-transparent'
-              : 'border border-gray-200 text-gray-500 hover:bg-gray-50'
+              ? 'bg-slate-950 text-white border border-transparent shadow-sm'
+              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
           }`}
         >
           {tab}

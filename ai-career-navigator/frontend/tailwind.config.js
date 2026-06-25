@@ -7,6 +7,25 @@ export default {
   ],
   theme: {
     extend: {
+      colors: {
+        primary: {
+          DEFAULT: '#333D6D', // Deep Navy
+          light: '#4d5b99',
+          dark: '#1e2440'
+        },
+        secondary: {
+          DEFAULT: '#723EC3', // Royal Purple
+          light: '#9b6bea'
+        },
+        accent: {
+          DEFAULT: '#FFCF95', // Soft Peach
+          light: '#ffe0b2'
+        },
+        bgLight: '#FFF0D9', // Warm Cream
+        cardBg: '#FFFFFF',
+        textMain: '#1E293B',
+        borderLight: '#E5E7EB',
+      },
       fontFamily: {
         sans: ['Outfit', 'sans-serif'],
       },

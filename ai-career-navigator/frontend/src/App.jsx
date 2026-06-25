@@ -67,36 +67,41 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden font-sans text-slate-200">
-      {/* Dynamic ambient background blobs */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-purple-600/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob pointer-events-none"></div>
-      <div className="absolute top-[20%] right-[-10%] w-[35vw] h-[35vw] bg-cyan-600/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000 pointer-events-none"></div>
-      <div className="absolute -bottom-[-10%] left-[20%] w-[45vw] h-[45vw] bg-blue-600/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-4000 pointer-events-none"></div>
+    <div className="min-h-screen bg-bgLight py-0 overflow-x-hidden font-sans text-textMain">
+      {/* Hero Banner Section */}
+      <div className="hero-gradient pt-16 pb-24 px-4 sm:px-6 lg:px-8 relative rounded-b-[40px] shadow-md mb-12">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-b-[40px]">
+          <div className="absolute -top-24 -left-24 w-96 h-96 bg-secondary opacity-30 rounded-full blur-3xl"></div>
+          <div className="absolute top-12 right-0 w-80 h-80 bg-primary opacity-40 rounded-full blur-3xl"></div>
+        </div>
 
-      <div className="relative z-10">
-        <header className="max-w-7xl mx-auto mb-16 text-center animate-fadeIn">
-          <div className="inline-block mb-6 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)] backdrop-blur-md">
-            <span className="text-xs font-bold text-cyan-400 tracking-widest uppercase flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulseGlow"></span>
-              AI-Powered Recruiting
-            </span>
-          </div>
-          <h1 className="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 tracking-tight mb-6 pb-2 drop-shadow-sm">
-            AI Career Navigator
-          </h1>
-          <p className="text-xl text-slate-400 max-w-2xl mx-auto font-light leading-relaxed">
-            Upload your resume and let our intelligent engine instantly match your skills with the perfect opportunities.
-          </p>
-        </header>
+        <div className="relative z-10">
+          <header className="max-w-7xl mx-auto text-center animate-fadeIn">
+            <div className="inline-flex mb-6 px-5 py-2 rounded-full bg-white/20 border border-white/30 backdrop-blur-md shadow-sm">
+              <span className="text-xs font-bold text-white tracking-widest uppercase flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-accent"></span>
+                AI-Powered Recruiting
+              </span>
+            </div>
+            <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-6 pb-1 drop-shadow-sm">
+              AI Career Navigator
+            </h1>
+            <p className="text-base md:text-lg text-white/90 max-w-2xl mx-auto leading-8">
+              Upload your resume and let our intelligent engine instantly match your skills with the perfect opportunities.
+            </p>
+          </header>
+        </div>
+      </div>
 
-        <main className="max-w-7xl mx-auto space-y-10 relative">
+      <div className="px-4 sm:px-6 lg:px-8 pb-16">
+        <main className="max-w-7xl mx-auto space-y-8 md:space-y-12 relative -mt-20">
           <ResumeUpload 
             onUploadComplete={handleUploadComplete} 
             onJobsReset={loadAllJobs} 
           />
           
           {error && (
-            <div className="max-w-3xl mx-auto bg-red-50/90 backdrop-blur-sm border-l-4 border-red-500 p-5 rounded-r-xl shadow-md">
+            <div className="max-w-3xl mx-auto bg-red-50 border border-red-200 p-5 rounded-2xl shadow-sm">
               <div className="flex">
                 <div className="flex-shrink-0">
                   <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
@@ -104,7 +109,7 @@ function App() {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm font-bold text-red-800">{error}</p>
+                  <p className="text-sm font-semibold text-red-800">{error}</p>
                 </div>
               </div>
             </div>

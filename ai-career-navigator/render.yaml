@@ -19,8 +19,9 @@ services:
       - key: SUPABASE_DB_URL
         sync: false
       - key: REDIS_URL
-        fromDatabase:
+        fromService:
           name: ai-career-navigator-redis
+          type: redis
           property: connectionString
 
   - type: redis
