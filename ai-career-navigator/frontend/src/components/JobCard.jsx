@@ -1,5 +1,6 @@
 // src/components/JobCard.jsx - single job match card
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { aiClient } from '../api/aiClient';
 import SkillGapPanel from './SkillGapPanel';
 import MatchSimulator from './MatchSimulator';
@@ -7,6 +8,7 @@ import MatchSimulator from './MatchSimulator';
 export default function JobCard({ job, resumeSkills }) {
   const [gapAnalysis, setGapAnalysis] = useState(null);
   const [loadingGap, setLoadingGap] = useState(false);
+  const [showAnalysisModal, setShowAnalysisModal] = useState(false);
   const [showSimulator, setShowSimulator] = useState(false);
 
   const totalSkills = job.required_skills ? job.required_skills.length : 0;
@@ -32,11 +34,16 @@ export default function JobCard({ job, resumeSkills }) {
   }
 
   const handleAnalyzeGap = async () => {
-    if (!resumeSkills || gapAnalysis) return;
+    if (!resumeSkills) return;
+    if (gapAnalysis) {
+      setShowAnalysisModal(true);
+      return;
+    }
     setLoadingGap(true);
     try {
       const result = await aiClient.getGapAnalysis(resumeSkills, job.id);
       setGapAnalysis(result);
+      setShowAnalysisModal(true);
     } catch (err) {
       console.error(err);
     } finally {
@@ -88,7 +95,7 @@ export default function JobCard({ job, resumeSkills }) {
           </div>
         )}
 
-        {resumeSkills && !gapAnalysis && (
+        {resumeSkills && (
           <div className="mt-5 mb-2">
             <button 
               onClick={handleAnalyzeGap}
@@ -108,44 +115,72 @@ export default function JobCard({ job, resumeSkills }) {
                   <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
-                  Run Deep Gap Analysis
+                  {gapAnalysis ? 'View Deep Gap Analysis' : 'Run Deep Gap Analysis'}
                 </>
               )}
             </button>
           </div>
         )}
 
-        {gapAnalysis && (
-          <SkillGapPanel 
-            matched_skills={gapAnalysis.matched_skills} 
-            missing_skills={gapAnalysis.missing_skills} 
-            job={job}
-            match_percentage={gapAnalysis.match_percentage}
-          />
-        )}
+        {showAnalysisModal && gapAnalysis && createPortal(
+          <div className="job-card-portal-root">
+            {/* Backdrop */}
+            <div 
+              className="fixed inset-0 z-[9990] bg-slate-900/60 backdrop-blur-sm transition-opacity"
+              onClick={() => setShowAnalysisModal(false)}
+            ></div>
+            
+            {/* Side Panel */}
+            <div className="fixed top-0 right-0 h-full w-full max-w-md bg-slate-800 border-l border-slate-700 shadow-[0_0_50px_rgba(0,0,0,0.5)] z-[9999] flex flex-col overflow-y-auto animate-slideInRight">
+              <div className="sticky top-0 bg-slate-800/95 backdrop-blur-md p-6 border-b border-slate-700 flex justify-between items-start z-10">
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-1">Deep Gap Analysis</h3>
+                  <p className="text-sm text-cyan-400 font-medium">{job.role}</p>
+                  <p className="text-xs text-slate-400 mt-1">{job.company}</p>
+                </div>
+                <button 
+                  onClick={() => setShowAnalysisModal(false)}
+                  className="p-2 -mr-2 -mt-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+              
+              <div className="p-6 flex-grow flex flex-col">
+                <SkillGapPanel 
+                  matched_skills={gapAnalysis.matched_skills} 
+                  missing_skills={gapAnalysis.missing_skills} 
+                  job={job}
+                  match_percentage={gapAnalysis.match_percentage}
+                />
 
-        {gapAnalysis && (
-           <div className="mt-5 pt-4 border-t border-white/10">
-             <button 
-               onClick={() => setShowSimulator(!showSimulator)}
-               className="text-sm font-semibold text-purple-400 hover:text-purple-300 flex items-center transition-colors"
-             >
-               <svg className={`w-4 h-4 mr-1.5 transform transition-transform ${showSimulator ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-               </svg>
-               {showSimulator ? 'Hide Simulator' : 'Simulate Score Improvement'}
-             </button>
-             
-             {showSimulator && (
-               <div className="mt-4 animate-fadeIn">
-                 <MatchSimulator 
-                   job={job} 
-                   current_match={gapAnalysis.match_percentage} 
-                   missing_skills_with_deltas={missingSkillsWithDeltas}
-                 />
-               </div>
-             )}
-           </div>
+                <div className="mt-8 pt-6 border-t border-slate-700">
+                  <button 
+                    onClick={() => setShowSimulator(!showSimulator)}
+                    className="w-full py-3 px-4 rounded-xl text-sm font-bold text-white bg-purple-600 hover:bg-purple-500 shadow-lg shadow-purple-500/20 flex justify-center items-center transition-all"
+                  >
+                    <svg className={`w-5 h-5 mr-2 transform transition-transform ${showSimulator ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                    {showSimulator ? 'Hide Simulator' : 'Simulate Score Improvement'}
+                  </button>
+                  
+                  {showSimulator && (
+                    <div className="mt-6 animate-fadeIn">
+                      <MatchSimulator 
+                        job={job} 
+                        current_match={gapAnalysis.match_percentage} 
+                        missing_skills_with_deltas={missingSkillsWithDeltas}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>,
+          document.body
         )}
       </div>
       

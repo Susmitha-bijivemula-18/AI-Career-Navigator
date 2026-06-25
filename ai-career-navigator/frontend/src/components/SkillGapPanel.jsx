@@ -93,13 +93,19 @@ export default function SkillGapPanel({ loading, error, onRetry, job, matched_sk
               <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
               Missing Skills
             </h3>
-            <div className="flex flex-wrap gap-2.5">
-              {missing_skills.map((item, i) => (
-                <span key={i} className="inline-flex items-center bg-red-900/20 text-red-400 border border-red-500/30 text-xs font-semibold px-3.5 py-1.5 rounded-lg cursor-default hover:bg-red-500/20 transition-colors">
-                  <span className="mr-1.5 text-red-500 font-bold">✗</span> {item.skill || item}
-                </span>
-              ))}
-            </div>
+            {missing_skills.length > 0 ? (
+              <div className="flex flex-wrap gap-2.5">
+                {missing_skills.map((item, i) => (
+                  <span key={i} className="inline-flex items-center bg-red-900/20 text-red-400 border border-red-500/30 text-xs font-semibold px-3.5 py-1.5 rounded-lg cursor-default hover:bg-red-500/20 transition-colors">
+                    <span className="mr-1.5 text-red-500 font-bold">✗</span> {item.skill || item}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <div className="text-sm font-medium text-slate-400 italic bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 text-center">
+                You have all the required skills for this role! 🎉
+              </div>
+            )}
           </div>
         </div>
       </div>
