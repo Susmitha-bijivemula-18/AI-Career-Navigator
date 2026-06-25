@@ -1,70 +1,60 @@
-# backend/ingestion/adzuna_fetcher.py - Adzuna API fetcher
-import asyncio
+# backend/ingestion/adzuna_fetcher.py - Adzuna API client
 import httpx
-from typing import List
-from ingestion.base_fetcher import BaseFetcher, RawJob
+import asyncio
+from typing import List, Dict, Any
+from ingestion.base_fetcher import BaseFetcher
 from core.config import settings
-from core.logging import logger
+from core.errors import JobFetchError
+from core.logging import log
 
 class AdzunaFetcher(BaseFetcher):
-    async def fetch(self, keywords: List[str], location: str) -> List[RawJob]:
-        app_id = settings.ADZUNA_APP_ID
-        app_key = settings.ADZUNA_API_KEY
-        
-        if not app_id or not app_key:
-            logger.warning("adzuna_fetcher_skipped", reason="Missing API credentials")
+    async def fetch(self, keywords: List[str], location: str) -> List[Dict[str, Any]]:
+        if not settings.ADZUNA_APP_ID or not settings.ADZUNA_API_KEY:
+            log.warning("adzuna_missing_keys")
             return []
-
-        country = "us"  # Defaulting to US market
-        raw_jobs = []
-
-        async with httpx.AsyncClient() as client:
-            for kw in keywords:
-                retries = 3
-                for attempt in range(retries):
-                    try:
-                        url = f"https://api.adzuna.com/v1/api/jobs/{country}/search/1"
-                        params = {
-                            "app_id": app_id,
-                            "app_key": app_key,
-                            "what": kw,
-                            "where": location,
-                            "content-type": "application/json"
-                        }
-                        
-                        response = await client.get(url, params=params, timeout=10.0)
-                        
-                        # Handle rate limiting (HTTP 429)
-                        if response.status_code == 429:
-                            wait_time = 2 ** attempt
-                            logger.warning("adzuna_rate_limited", attempt=attempt, wait_seconds=wait_time, keyword=kw)
-                            await asyncio.sleep(wait_time)
-                            continue
-                        
-                        response.raise_for_status()
-                        data = response.json()
-                        
-                        results = data.get("results", [])
-                        for item in results:
-                            raw_jobs.append(RawJob(
-                                source_job_id=str(item.get("id", "")),
-                                source_name="adzuna",
-                                company=item.get("company", {}).get("display_name", "Unknown Company"),
-                                role=item.get("title", ""),
-                                location=item.get("location", {}).get("display_name", location),
-                                remote="remote" in item.get("title", "").lower() or "remote" in item.get("description", "").lower(),
-                                salary_min=item.get("salary_min"),
-                                salary_max=item.get("salary_max"),
-                                apply_url=item.get("redirect_url", ""),
-                                posted_at_raw=item.get("created", ""),
-                                description_raw=item.get("description", ""),
-                                tags=[item.get("category", {}).get("label", "")] if item.get("category", {}).get("label") else []
-                            ))
-                        # Fetch succeeded for this keyword, proceed to next keyword
-                        break
-                    except Exception as e:
-                        if attempt == retries - 1:
-                            logger.error("adzuna_fetch_failed_all_attempts", keyword=kw, error=str(e))
-                        else:
-                            await asyncio.sleep(2 ** attempt)
-        return raw_jobs
+            
+        url = f"https://api.adzuna.com/v1/api/jobs/gb/search/1"
+        params = {
+            "app_id": settings.ADZUNA_APP_ID,
+            "app_key": settings.ADZUNA_API_KEY,
+            "results_per_page": 50,
+            "what": " ".join(keywords),
+            "where": location
+        }
+        
+        for attempt in range(3):
+            try:
+                async with httpx.AsyncClient() as client:
+                    response = await client.get(url, params=params, timeout=10.0)
+                    response.raise_for_status()
+                    data = response.json()
+                    
+                    raw_jobs = []
+                    for item in data.get("results", []):
+                        raw_jobs.append({
+                            "source": "adzuna",
+                            "source_job_id": str(item.get("id")),
+                            "company": item.get("company", {}).get("display_name", "Unknown"),
+                            "role": item.get("title", ""),
+                            "location": item.get("location", {}).get("display_name", ""),
+                            "remote": "remote" in item.get("title", "").lower() or "remote" in item.get("description", "").lower(),
+                            "salary_min": item.get("salary_min"),
+                            "salary_max": item.get("salary_max"),
+                            "apply_url": item.get("redirect_url", ""),
+                            "posted_at": item.get("created", ""),
+                            "description_raw": item.get("description", "")
+                        })
+                    return raw_jobs
+            except httpx.HTTPStatusError as e:
+                if e.response.status_code == 429:
+                    wait_time = 2 ** attempt
+                    log.warning("adzuna_rate_limit", attempt=attempt, wait=wait_time)
+                    await asyncio.sleep(wait_time)
+                    continue
+                log.error("adzuna_fetch_error", error=str(e))
+                raise JobFetchError(f"Adzuna HTTP error: {e}")
+            except Exception as e:
+                log.error("adzuna_fetch_error", error=str(e))
+                raise JobFetchError(f"Adzuna fetch failed: {e}")
+                
+        return []

@@ -6,17 +6,17 @@ from services.recommender import composite_score
 from services.llm_client import call_llm_json
 from prompts.learning_path import SYSTEM_PROMPT_LEARNING_PATH, get_user_prompt_learning_path
 from routes.jobs import load_jobs
-from services.database import resumes_collection
-from bson import ObjectId
+from services.database import supabase
 
 router = APIRouter()
 
 @router.get("", response_model=RecommendResponse)
 async def get_recommendations(resume_id: str):
     try:
-        resume = await resumes_collection.find_one({"_id": ObjectId(resume_id)})
-    except Exception:
-        raise HTTPException(status_code=400, detail="Invalid resume ID format")
+        response = supabase.table('resumes').select('*').eq('id', resume_id).execute()
+        resume = response.data[0] if response.data else None
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid resume ID or database error")
 
     if not resume:
         raise HTTPException(status_code=404, detail="Resume not found")

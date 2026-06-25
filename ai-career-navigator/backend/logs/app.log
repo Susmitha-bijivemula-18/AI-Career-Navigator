@@ -18,3 +18,13 @@ Scheduler started
 Adding job tentatively -- it will be properly scheduled when the scheduler starts
 Adding job tentatively -- it will be properly scheduled when the scheduler starts
 Adding job tentatively -- it will be properly scheduled when the scheduler starts
+Adding job tentatively -- it will be properly scheduled when the scheduler starts
+Adding job tentatively -- it will be properly scheduled when the scheduler starts
+Adding job tentatively -- it will be properly scheduled when the scheduler starts
+Added job "run" to job store "default"
+Added job "run" to job store "default"
+Added job "run" to job store "default"
+Scheduler started
+Running job "run (trigger: interval[0:30:00], next run at: 2026-06-17 22:26:05 IST)" (scheduled at 2026-06-17 21:56:05.063745+05:30)
+HTTP Request: GET https://weworkremotely.com/categories/remote-programming-jobs.rss "HTTP/1.1 200 OK"
+Job "run (trigger: interval[0:30:00], next run at: 2026-06-17 22:26:05 IST)" executed successfully

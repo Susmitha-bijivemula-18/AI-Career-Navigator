@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException
 from models.schemas_v2 import AnalyzeRequest, AnalyzeResponse
 from services.llm_client import call_llm_json
 from prompts.resume_analysis import SYSTEM_PROMPT_RESUME_ANALYSIS, get_user_prompt_resume_analysis
-from services.database import resumes_collection
+from services.database import supabase
 from datetime import datetime
 
 router = APIRouter()
@@ -49,17 +49,21 @@ async def analyze_resume(request: AnalyzeRequest):
     result["skills"] = combined_skills
     
     # Optional: Save basic info to resumes collection
-    result_insert = await resumes_collection.insert_one({
-        "raw_text": request.resume_text,
-        "extracted_skills": combined_skills,
-        "experience_level": result.get("experience_level", "Unknown"),
-        "predicted_roles": result.get("predicted_roles", []),
-        "ai_summary": result.get("summary", ""),
-        "created_at": datetime.utcnow(),
-        "updated_at": datetime.utcnow()
-    })
+    try:
+        response = supabase.table('resumes').insert({
+            "raw_text": request.resume_text,
+            "extracted_skills": combined_skills,
+            "experience_level": result.get("experience_level", "Unknown"),
+            "predicted_roles": result.get("predicted_roles", []),
+            "ai_summary": result.get("summary", "")
+        }).execute()
+        resume_id = response.data[0]['id'] if response.data else "error"
+    except Exception as e:
+        print(f"Error inserting resume into Supabase: {e}")
+        # Raise HTTP 500 so we can see the exact error in the frontend/network tab
+        raise HTTPException(status_code=500, detail=f"Database insert error: {str(e)}")
     
     return AnalyzeResponse(
-        resume_id=str(result_insert.inserted_id),
+        resume_id=resume_id,
         **result
     )

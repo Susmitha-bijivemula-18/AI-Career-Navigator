@@ -1,9 +1,8 @@
-# backend/cache/cache_keys.py - Centralised cache keys and TTLs
-
+# backend/cache/cache_keys.py - centralised key constants + TTL values
 KEYS = {
     "feed":      lambda rid:  f"feed:{rid}",
-    "insights":  "insights:latest",
-    "hiring":    lambda role: f"hiring:{role.lower().strip().replace(' ', '-')}",
+    "insights":  lambda: "insights:latest",
+    "hiring":    lambda role: f"hiring:{role.lower().replace(' ', '-')}",
     "analytics": lambda rid:  f"analytics:{rid}",
 }
 

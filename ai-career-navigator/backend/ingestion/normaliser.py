@@ -1,93 +1,61 @@
-# backend/ingestion/normaliser.py - Normalise RawJob to JobDocument
-import re
-from datetime import datetime, timedelta, timezone
-from email.utils import parsedate_to_datetime
-from typing import List
-from ingestion.base_fetcher import RawJob
-from models.schemas_v3 import JobDocument
-from services.skill_extractor import extract_skills
+# backend/ingestion/normaliser.py - maps all sources to JobDocument schema
+from datetime import datetime, timedelta
+from typing import Dict, Any, List
+# Assuming Phase 1 skill_extractor exists
+try:
+    from services.skill_extractor import extract_skills
+except ImportError:
+    def extract_skills(text: str) -> List[str]: return []
 
-def parse_date(date_str: str) -> datetime:
-    """
-    Parses a date string (ISO 8601, RFC 822/RSS, or timestamp) to datetime.
-    """
-    # 1. Check if numeric timestamp
-    if date_str.isdigit():
-        return datetime.fromtimestamp(int(date_str), tz=timezone.utc)
-    
-    # 2. Try parsing as RSS / RFC 822 (email format)
-    try:
-        dt = parsedate_to_datetime(date_str)
-        # Convert to UTC
-        return dt.astimezone(timezone.utc).replace(tzinfo=None)
-    except Exception:
-        pass
-
-    # 3. Try standard ISO format
-    try:
-        # Strip 'Z' suffix and replace with +00:00 for fromisoformat
-        clean_str = date_str
-        if clean_str.endswith('Z'):
-            clean_str = clean_str[:-1] + '+00:00'
-        dt = datetime.fromisoformat(clean_str)
-        return dt.astimezone(timezone.utc).replace(tzinfo=None)
-    except Exception:
-        pass
-
-    # Fallback to current time
-    return datetime.utcnow()
-
-def detect_experience_level(title: str, description: str) -> str:
-    """
-    Detects experience level (Junior, Mid, Senior) based on title and description keywords.
-    """
-    combined = (title + " " + description).lower()
-    
-    senior_keywords = [r"\bsenior\b", r"\bsr\b", r"\blead\b", r"\bprincipal\b", r"\barchitect\b", r"\bmanager\b"]
-    junior_keywords = [r"\bjunior\b", r"\bjr\b", r"\bentry\b", r"\bintern\b", r"\bgraduate\b", r"\bassociate\b"]
-    
-    for pattern in senior_keywords:
-        if re.search(pattern, combined):
-            return "Senior"
-            
-    for pattern in junior_keywords:
-        if re.search(pattern, combined):
-            return "Junior"
-            
+def determine_experience_level(text: str) -> str:
+    text_lower = text.lower()
+    if "senior" in text_lower or "lead" in text_lower or "principal" in text_lower:
+        return "Senior"
+    if "junior" in text_lower or "entry" in text_lower or "graduate" in text_lower:
+        return "Junior"
     return "Mid"
 
-def normalise_job(raw: RawJob) -> JobDocument:
-    """
-    Maps a RawJob to a JobDocument, performing skill extraction and level detection.
-    """
-    fetched_now = datetime.utcnow()
-    posted_dt = parse_date(raw.posted_at_raw)
+def normalise_job(raw_job: Dict[str, Any]) -> Dict[str, Any]:
+    source = raw_job.get("source", "unknown")
+    source_id = raw_job.get("source_job_id", "")
+    external_id = f"{source}:{source_id}"
     
-    # Extract skills
-    skills = extract_skills(raw.description_raw)
-    # Also attempt skill extraction on role/title in case description is brief
-    skills_title = extract_skills(raw.role)
-    unique_skills = sorted(list(set(skills + skills_title)))
+    posted_at = raw_job.get("posted_at")
+    if isinstance(posted_at, str):
+        try:
+            posted_at = datetime.fromisoformat(posted_at.replace("Z", "+00:00"))
+        except ValueError:
+            posted_at = datetime.utcnow()
+    elif not posted_at:
+        posted_at = datetime.utcnow()
+        
+    fetched_at = datetime.utcnow()
+    expires_at = fetched_at + timedelta(days=30)
     
-    # Detect experience level
-    exp_level = detect_experience_level(raw.role, raw.description_raw)
+    title = raw_job.get("role", "")
+    desc = raw_job.get("description_raw", "")
+    full_text = f"{title} {desc}"
     
-    return JobDocument(
-        external_id=f"{raw.source_name}:{raw.source_job_id}",
-        source=raw.source_name,
-        company=raw.company,
-        role=raw.role,
-        location=raw.location,
-        remote=raw.remote,
-        required_skills=unique_skills,
-        experience_level=exp_level,
-        salary_min=raw.salary_min,
-        salary_max=raw.salary_max,
-        apply_url=raw.apply_url,
-        posted_at=posted_dt,
-        fetched_at=fetched_now,
-        expires_at=fetched_now + timedelta(days=30),
-        is_active=True,
-        description_raw=raw.description_raw,
-        tags=raw.tags
-    )
+    required_skills = raw_job.get("required_skills")
+    if not required_skills:
+        required_skills = extract_skills(full_text)
+        
+    return {
+        "external_id": external_id,
+        "source": source,
+        "company": raw_job.get("company", "Unknown"),
+        "role": title,
+        "location": raw_job.get("location", ""),
+        "remote": raw_job.get("remote", False),
+        "required_skills": required_skills,
+        "experience_level": determine_experience_level(full_text),
+        "salary_min": raw_job.get("salary_min"),
+        "salary_max": raw_job.get("salary_max"),
+        "apply_url": raw_job.get("apply_url", ""),
+        "posted_at": posted_at,
+        "fetched_at": fetched_at,
+        "expires_at": expires_at,
+        "is_active": True,
+        "description_raw": desc,
+        "tags": raw_job.get("tags", [])
+    }

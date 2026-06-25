@@ -1,40 +1,24 @@
-# backend/routes/analytics.py - Router for resume analytics visualization data
+# backend/routes/analytics.py - GET /analytics/{resume_id}
 import json
-from fastapi import APIRouter, HTTPException, status
-from services.analytics_service import generate_analytics
+from fastapi import APIRouter, Request
 from cache.redis_client import redis_client
-from core.logging import logger
+from cache.cache_keys import KEYS, TTL
+from services.analytics_service import build_analytics
+from services.feed_service import build_feed
 
 router = APIRouter()
 
-@router.get("/{resume_id}")
-async def get_analytics(resume_id: str):
-    """
-    Returns skill overlap distribution and match score breakdown for rendering charts.
-    """
-    cache_key = f"analytics:{resume_id}"
+@router.get("/analytics/{resume_id}")
+async def get_analytics(request: Request, resume_id: str):
+    key = KEYS["analytics"](resume_id)
+    cached = await redis_client.get(key)
+    if cached:
+        return json.loads(cached)
+        
+    # We need the feed to calculate analytics, in reality we'd pull from a specific collection
+    feed_jobs = await build_feed(None, resume_id)
     
-    try:
-        cached = await redis_client.get(cache_key)
-        if cached:
-            logger.info("analytics_redis_hit", resume_id=resume_id)
-            return json.loads(cached)
-    except Exception as e:
-        logger.warning("analytics_redis_read_error", resume_id=resume_id, error=str(e))
-
-    logger.info("analytics_redis_miss", resume_id=resume_id)
-    try:
-        result = await generate_analytics(resume_id)
-    except ValueError as ve:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(ve))
-    except Exception as e:
-        logger.error("analytics_processing_failed", resume_id=resume_id, error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to compile resume metrics.")
-
-    try:
-        # Cache in Redis for 30 minutes (1800 seconds)
-        await redis_client.setex(cache_key, 1800, json.dumps(result))
-    except Exception as e:
-        logger.warning("analytics_redis_write_error", resume_id=resume_id, error=str(e))
-
-    return result
+    doc = await build_analytics(None, resume_id, feed_jobs, ["python", "docker"]) # Mock skills
+    
+    await redis_client.setex(key, TTL["analytics"], json.dumps(doc))
+    return doc

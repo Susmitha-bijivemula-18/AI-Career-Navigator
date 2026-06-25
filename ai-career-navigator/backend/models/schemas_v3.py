@@ -1,29 +1,8 @@
-# backend/models/schemas_v3.py - Pydantic v2 schemas for Phase 3 collections and APIs
-from datetime import datetime
-from pydantic import BaseModel, Field, HttpUrl
-from typing import List, Dict, Optional
+# backend/models/schemas_v3.py - Pydantic v2 models for Phase 3 API responses
+from pydantic import BaseModel
+from typing import List, Optional, Dict
 
-# --- Job Models ---
-class JobDocument(BaseModel):
-    external_id: str
-    source: str
-    company: str
-    role: str
-    location: str
-    remote: bool
-    required_skills: List[str]
-    experience_level: str
-    salary_min: Optional[int] = None
-    salary_max: Optional[int] = None
-    apply_url: str
-    posted_at: datetime
-    fetched_at: datetime
-    expires_at: datetime
-    is_active: bool
-    description_raw: str
-    tags: List[str]
-
-class JobFeedItem(BaseModel):
+class JobResponse(BaseModel):
     id: str
     company: str
     role: str
@@ -32,41 +11,48 @@ class JobFeedItem(BaseModel):
     freshness_label: str
     matched_skills: List[str]
     missing_skills: List[str]
-    salary_range: str
+    salary_range: Optional[str]
     remote: bool
     apply_url: str
 
 class FeedResponse(BaseModel):
-    jobs: List[JobFeedItem]
+    jobs: List[JobResponse]
     total: int
     page: int
 
-# --- Rank Request ---
-class RankJobsRequest(BaseModel):
+class RankRequest(BaseModel):
     resume_id: str
     job_ids: List[str]
 
-# --- Insights Models ---
-class TrendingSkillItem(BaseModel):
+class TrendingSkill(BaseModel):
     skill: str
     job_count: int
     growth_pct: float
 
 class InsightsResponse(BaseModel):
-    trending_skills: List[TrendingSkillItem]
+    trending_skills: List[TrendingSkill]
     most_requested: List[str]
     role_demand: Dict[str, int]
-    avg_salary_by_role: Dict[str, int]
-    computed_at: datetime
+    computed_at: str
 
-# --- Hiring Intel Models ---
-class HiringRoundItem(BaseModel):
+class HiringRound(BaseModel):
     name: str
     description: str
     tips: List[str]
 
 class HiringIntelResponse(BaseModel):
     role: str
-    rounds: List[HiringRoundItem]
+    rounds: List[HiringRound]
     total_rounds: int
     avg_duration_weeks: int
+
+class MatchScore(BaseModel):
+    job_id: str
+    role: str
+    score: int
+
+class AnalyticsResponse(BaseModel):
+    skill_distribution: Dict[str, int]
+    match_scores: List[MatchScore]
+    avg_match_pct: float
+    top_missing: List[str]

@@ -1,59 +1,44 @@
-# backend/cache/redis_client.py - Redis connection pool and wrapper
-import redis.asyncio as redis
+# backend/cache/redis_client.py - aioredis connection pool + helpers
+import redis.asyncio as aioredis
+import json
 from core.config import settings
-from core.logging import logger
+from core.errors import CacheError
+from core.logging import log
 
 class RedisClient:
     def __init__(self):
-        self.client = None
+        self.redis = None
 
     async def connect(self):
-        try:
-            logger.info("redis_connecting", url=settings.REDIS_URL)
-            self.client = redis.from_url(settings.REDIS_URL, decode_responses=True)
-            # Perform a ping to verify connection
-            await self.client.ping()
-            logger.info("redis_connected")
-        except Exception as e:
-            logger.warning("redis_connection_failed", error=str(e))
-            self.client = None
+        self.redis = aioredis.from_url(settings.REDIS_URL, decode_responses=True)
 
     async def disconnect(self):
-        if self.client:
-            try:
-                await self.client.close()
-                logger.info("redis_disconnected")
-            except Exception as e:
-                logger.error("redis_disconnect_failed", error=str(e))
-            self.client = None
+        if self.redis:
+            await self.redis.close()
 
-    async def get(self, key: str) -> str | None:
-        if not self.client:
+    async def get(self, key: str):
+        if not self.redis:
             return None
         try:
-            return await self.client.get(key)
+            return await self.redis.get(key)
         except Exception as e:
-            logger.warning("redis_get_failed", key=key, error=str(e))
-            return None  # Degraded mode: return None to fetch from DB instead of crashing
+            log.warning("cache_error", action="get", key=key, error=str(e))
+            return None
 
-    async def setex(self, key: str, ttl: int, value: str) -> bool:
-        if not self.client:
-            return False
+    async def setex(self, key: str, ttl: int, value: str):
+        if not self.redis:
+            return
         try:
-            await self.client.setex(key, ttl, value)
-            return True
+            await self.redis.setex(key, ttl, value)
         except Exception as e:
-            logger.warning("redis_setex_failed", key=key, error=str(e))
-            return False
+            log.warning("cache_error", action="setex", key=key, error=str(e))
 
-    async def delete(self, key: str) -> bool:
-        if not self.client:
-            return False
+    async def delete(self, key: str):
+        if not self.redis:
+            return
         try:
-            await self.client.delete(key)
-            return True
+            await self.redis.delete(key)
         except Exception as e:
-            logger.warning("redis_delete_failed", key=key, error=str(e))
-            return False
+            log.warning("cache_error", action="delete", key=key, error=str(e))
 
 redis_client = RedisClient()

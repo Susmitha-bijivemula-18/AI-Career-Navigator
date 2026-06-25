@@ -1,5 +1,6 @@
 # main.py - FastAPI app + CORS + health check + routes
 from fastapi import FastAPI
+from core.config import settings
 from fastapi.middleware.cors import CORSMiddleware
 from routes.upload import router as upload_router
 from routes.jobs import router as jobs_router
@@ -18,7 +19,7 @@ from routes.analytics import router as analytics_router
 from routes.saved import router as saved_router
 
 # Phase 3 database/caching/scheduling helper imports
-from db.indexes import init_db_indexes
+
 from cache.redis_client import redis_client
 from workers.scheduler import start_scheduler, shutdown_scheduler
 from core.errors import register_error_handlers
@@ -28,10 +29,13 @@ app = FastAPI(title="AI Career Navigator API")
 # Register Phase 3 global exception handlers
 register_error_handlers(app)
 
+# Parse FRONTEND_URLS into a list
+allowed_origins = [url.strip() for url in settings.FRONTEND_URLS.split(',')]
+
 # Add CORS middleware to allow requests from the frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Vite's default dev server port
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -60,7 +64,7 @@ def health_check():
 # Register application startup and shutdown hook listeners
 @app.on_event("startup")
 async def startup():
-    await init_db_indexes()
+
     await redis_client.connect()
     start_scheduler()
 

@@ -1,38 +1,12 @@
-# backend/routes/saved.py - Stub endpoints for saved jobs
-from fastapi import APIRouter, status
-from pydantic import BaseModel
-from core.logging import logger
+# backend/routes/saved.py - POST/DELETE /saved (future-ready stub)
+from fastapi import APIRouter
 
 router = APIRouter()
 
-class SavedJobRequest(BaseModel):
-    resume_id: str
-    job_id: str
+@router.post("/saved")
+async def save_job(job_id: str):
+    return {"status": "success", "message": "Job saved (stub)"}
 
-@router.post("")
-@router.post("/")
-async def save_job(request: SavedJobRequest):
-    """
-    Stub endpoint to bookmark a job.
-    """
-    logger.info("save_job_stub_triggered", resume_id=request.resume_id, job_id=request.job_id)
-    return {
-        "status": "success",
-        "message": "Job bookmarked successfully (Stub).",
-        "resume_id": request.resume_id,
-        "job_id": request.job_id
-    }
-
-@router.delete("")
-@router.delete("/")
-async def unsave_job(request: SavedJobRequest):
-    """
-    Stub endpoint to remove a bookmarked job.
-    """
-    logger.info("unsave_job_stub_triggered", resume_id=request.resume_id, job_id=request.job_id)
-    return {
-        "status": "success",
-        "message": "Job bookmark removed successfully (Stub).",
-        "resume_id": request.resume_id,
-        "job_id": request.job_id
-    }
+@router.delete("/saved/{job_id}")
+async def remove_saved_job(job_id: str):
+    return {"status": "success", "message": "Job removed from saved (stub)"}

@@ -1,48 +1,27 @@
-# backend/routes/feed.py - Router for candidate job feed
+# backend/routes/feed.py - GET /feed
 import json
-from fastapi import APIRouter, Query, HTTPException, status
-from services import feed_service
+from fastapi import APIRouter, Request, Query
 from cache.redis_client import redis_client
-from cache.cache_keys import TTL
-from core.logging import logger
+from cache.cache_keys import KEYS, TTL
+from services.feed_service import build_feed
 
 router = APIRouter()
 
-@router.get("")
-@router.get("/")
-async def get_feed(
-    resume_id: str = Query(..., description="ID of the resume to match"),
-    limit: int = Query(20, ge=1, le=100),
-    offset: int = Query(0, ge=0)
-):
-    """
-    Returns ranked, fresh, and deduplicated jobs matching the user resume.
-    """
-    # Key incorporates pagination boundaries to prevent invalid offset cache hits
-    cache_key = f"feed:{resume_id}:{limit}:{offset}"
+@router.get("/feed")
+async def get_feed(request: Request, resume_id: str, limit: int = 20, offset: int = 0):
+    key = KEYS["feed"](resume_id)
+    cached = await redis_client.get(key)
     
-    try:
-        cached = await redis_client.get(cache_key)
-        if cached:
-            logger.info("feed_cache_hit", resume_id=resume_id, limit=limit, offset=offset)
-            return json.loads(cached)
-    except Exception as e:
-        # Fallback to DB (degraded mode)
-        logger.warning("feed_cache_read_error", resume_id=resume_id, error=str(e))
-
-    logger.info("feed_cache_miss", resume_id=resume_id, limit=limit, offset=offset)
-    try:
-        result = await feed_service.build_feed(resume_id, limit, offset)
-    except ValueError as ve:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(ve))
-    except Exception as e:
-        logger.error("feed_generation_failed", resume_id=resume_id, error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to compile job feed.")
-
-    try:
-        # Save to cache
-        await redis_client.setex(cache_key, TTL["feed"], json.dumps(result))
-    except Exception as e:
-        logger.warning("feed_cache_write_error", resume_id=resume_id, error=str(e))
-
-    return result
+    if cached:
+        all_jobs = json.loads(cached)
+    else:
+        all_jobs = await build_feed(None, resume_id)
+        await redis_client.setex(key, TTL["feed"], json.dumps(all_jobs))
+        
+    page_jobs = all_jobs[offset : offset + limit]
+    
+    return {
+        "jobs": page_jobs,
+        "total": len(all_jobs),
+        "page": (offset // limit) + 1 if limit > 0 else 1
+    }

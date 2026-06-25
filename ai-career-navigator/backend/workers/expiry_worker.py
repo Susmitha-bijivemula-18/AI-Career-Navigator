@@ -1,21 +1,17 @@
-# backend/workers/expiry_worker.py - Deactivates expired jobs
-from datetime import datetime
-from services.database import db
-from db.collections import JOBS_COLLECTION
-from core.logging import logger
+# backend/workers/expiry_worker.py - marks stale jobs (>30 days) inactive
+from datetime import datetime, timedelta
+from core.config import settings
+from core.logging import log
+from services.database import supabase
 
 async def run():
-    """
-    Finds and marks jobs older than 30 days as inactive.
-    """
-    logger.info("expiry_worker_started")
+    log.info("expiry_worker_started")
     try:
-        now = datetime.utcnow()
-        # Mark all active jobs whose expires_at is in the past as inactive
-        result = await db[JOBS_COLLECTION].update_many(
-            {"expires_at": {"$lt": now}, "is_active": True},
-            {"$set": {"is_active": False}}
-        )
-        logger.info("expiry_worker_success", deactivated_count=result.modified_count)
+        # In addition to MongoDB TTL, optionally mark as inactive explicitly
+        threshold = datetime.utcnow() - timedelta(days=settings.JOB_EXPIRY_DAYS)
+        threshold_iso = threshold.isoformat()
+        response = supabase.table('jobs').update({"is_active": False}).lt("posted_at", threshold_iso).eq("is_active", True).execute()
+        expired_count = len(response.data) if response.data else 0
+        log.info("expiry_worker_finished", expired_count=expired_count)
     except Exception as e:
-        logger.error("expiry_worker_failed", error=str(e))
+        log.error("expiry_worker_failed", error=str(e))

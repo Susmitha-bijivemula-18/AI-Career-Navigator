@@ -3,7 +3,7 @@ import json
 from fastapi import APIRouter, HTTPException
 from models.schemas_v2 import GapAnalysisRequest, GapAnalysisResponse
 from services.gap_analyzer import analyze_gap
-from services.database import gap_cache_collection
+
 from routes.jobs import load_jobs
 from datetime import datetime
 
