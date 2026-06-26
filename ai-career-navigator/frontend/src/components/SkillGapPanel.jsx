@@ -98,7 +98,7 @@ export default function SkillGapPanel({ loading, error, onRetry, job, matched_sk
                 ))}
               </div>
             ) : (
-              <div className="text-sm font-medium text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
+              <div className="text-sm font-medium text-slate-600 bg-white p-4 rounded-xl border border-slate-200 text-center">
                 You have all the required skills for this role.
               </div>
             )}

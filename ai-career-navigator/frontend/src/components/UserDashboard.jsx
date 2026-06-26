@@ -19,7 +19,7 @@ export default function UserDashboard({ loading, error, onRetry, strengths = [],
       <div className="bg-white border border-red-200 rounded-2xl p-5 flex flex-col items-center justify-center text-center">
         <i className="ti ti-alert-circle text-red-500 text-2xl mb-2"></i>
         <p className="text-sm text-slate-600 mb-4">{error}</p>
-        <button onClick={onRetry} className="px-4 py-2 rounded-xl text-sm font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors">Retry</button>
+        <button onClick={onRetry} className="px-4 py-2 rounded-xl text-sm font-semibold border border-slate-200 text-slate-700 hover:bg-white transition-colors">Retry</button>
       </div>
     );
   }
@@ -91,7 +91,7 @@ export default function UserDashboard({ loading, error, onRetry, strengths = [],
         </div>
         <div className="space-y-4">
           {learning_path.map((item, i) => (
-            <div key={i} className="flex items-start gap-4 p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors">
+            <div key={i} className="flex items-start gap-4 p-3 border border-slate-100 rounded-xl hover:bg-white transition-colors">
               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-teal-50 text-teal-700 flex items-center justify-center text-sm font-bold">
                 {i + 1}
               </div>

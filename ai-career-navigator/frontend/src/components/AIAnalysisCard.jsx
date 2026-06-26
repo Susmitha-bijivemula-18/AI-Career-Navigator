@@ -48,7 +48,7 @@ export default function AIAnalysisCard({ loading, error, onRetry, skills = [], p
               const mockFit = [92, 85, 78][idx] || 70;
               const roleName = typeof role === 'string' ? role : role.role;
               return (
-                <div key={idx} className="flex justify-between items-center bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-100 group-hover:bg-white transition-colors gap-3">
+                <div key={idx} className="flex justify-between items-center bg-white px-4 py-2.5 rounded-xl border border-slate-100 group-hover:bg-white transition-colors gap-3">
                   <span className="text-sm font-semibold text-slate-800 truncate">{roleName}</span>
                   <span className={`text-xs font-black px-2.5 py-1 rounded-full border shrink-0 ${getRoleColor(mockFit)}`}>
                     {mockFit}%

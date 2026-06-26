@@ -20,7 +20,7 @@ export default function JobCard({ job, resumeSkills }) {
       }))
     : [];
 
-  let matchColor = 'text-slate-600 bg-slate-50 border-slate-200';
+  let matchColor = 'text-slate-600 bg-white border-slate-200';
   const matchPct = job.match_percentage || 0;
   
   if (matchPct > 0) {
@@ -72,7 +72,7 @@ export default function JobCard({ job, resumeSkills }) {
         </div>
 
         {job.reason && (
-          <div className="mb-5 text-sm text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100">
+          <div className="mb-5 text-sm text-slate-600 bg-white p-4 rounded-xl border border-slate-100">
             <strong className="text-slate-950 block mb-1">Why this role?</strong> {job.reason}
           </div>
         )}
@@ -150,7 +150,7 @@ export default function JobCard({ job, resumeSkills }) {
                 </button>
               </div>
               
-              <div className="p-6 flex-grow flex flex-col bg-slate-50/70">
+              <div className="p-6 flex-grow flex flex-col bg-white/70">
                 <SkillGapPanel 
                   matched_skills={gapAnalysis.matched_skills} 
                   missing_skills={gapAnalysis.missing_skills} 

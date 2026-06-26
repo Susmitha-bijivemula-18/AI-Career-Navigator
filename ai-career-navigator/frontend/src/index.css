@@ -1,45 +1,18 @@
-/* src/index.css - Tailwind directives and custom CSS */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  :root {
-    color-scheme: light;
-  }
-
   html {
     @apply scroll-smooth;
   }
 
   body {
-    @apply antialiased font-sans bg-[#FFF0D9] text-[#1E293B] overflow-x-hidden;
+    @apply antialiased font-sans overflow-x-hidden;
   }
 }
 
 @layer utilities {
-  .glass-card {
-    @apply bg-[#FFFFFF] border border-[#E5E7EB] rounded-[20px];
-    box-shadow: 0 20px 40px rgba(51, 61, 109, 0.12);
-  }
-  .glass-card-hover {
-    @apply hover:border-[#333D6D]/30 hover:shadow-md transition-all duration-300;
-  }
-  .hero-gradient {
-    background: linear-gradient(135deg, #333D6D 0%, #723EC3 100%);
-  }
-  .animation-delay-2000 {
-    animation-delay: 2s;
-  }
-  .animation-delay-4000 {
-    animation-delay: 4s;
-  }
-  .text-glow {
-    text-shadow: none;
-  }
-  .box-glow {
-    box-shadow: 0 18px 35px rgba(14, 116, 144, 0.16);
-  }
   .custom-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: #cbd5e1 transparent;

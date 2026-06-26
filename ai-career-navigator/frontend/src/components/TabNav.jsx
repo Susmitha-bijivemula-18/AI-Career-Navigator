@@ -11,7 +11,7 @@ export default function TabNav({ tabs, activeTab, onChange }) {
           className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors whitespace-nowrap ${
             activeTab === tab
               ? 'bg-slate-950 text-white border border-transparent shadow-sm'
-              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+              : 'bg-white border border-slate-200 text-slate-600 hover:bg-white hover:text-slate-900'
           }`}
         >
           {tab}

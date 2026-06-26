@@ -93,7 +93,7 @@ export default function MatchSimulator({ loading, error, onRetry, job, current_m
             {missing_skills_with_deltas.map((sk, i) => {
               const isChecked = selected.some(s => s.skill === sk.skill);
               return (
-                <label key={i} className={`flex items-center justify-between p-3.5 border rounded-xl cursor-pointer transition-all duration-300 gap-3 ${isChecked ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-slate-200 hover:border-indigo-200 hover:bg-slate-50'}`}>
+                <label key={i} className={`flex items-center justify-between p-3.5 border rounded-xl cursor-pointer transition-all duration-300 gap-3 ${isChecked ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-slate-200 hover:border-indigo-200 hover:bg-white'}`}>
                   <input type="checkbox" className="hidden" checked={isChecked} onChange={() => toggleSkill(sk)} />
                   <div className="flex items-center gap-3 min-w-0">
                     <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors shrink-0 ${isChecked ? 'bg-indigo-600 border-indigo-600' : 'border-slate-300 bg-white'}`}>
