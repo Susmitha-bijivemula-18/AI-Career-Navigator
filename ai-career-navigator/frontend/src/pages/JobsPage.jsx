@@ -1,135 +1,67 @@
-import React from 'react';
-import { IconMapPin, IconClock, IconBriefcase } from '@tabler/icons-react';
+import React, { useState, useEffect } from 'react';
+import { fetchJobs } from '../api/jobsApi';
+import JobCard from '../components/JobCard';
 
 export default function JobsPage() {
-  const jobs = [
-    {
-      id: 1,
-      role: "Senior AI Engineer",
-      company: "Amazon",
-      location: "San Francisco, CA",
-      time: "2 hours ago",
-      type: "Full-time",
-      logo: "https://www.google.com/s2/favicons?sz=128&domain=amazon.com"
-    },
-    {
-      id: 2,
-      role: "Machine Learning Scientist",
-      company: "Google",
-      location: "Remote",
-      time: "5 hours ago",
-      type: "Full-time",
-      logo: "https://www.google.com/s2/favicons?sz=128&domain=google.com"
-    },
-    {
-      id: 3,
-      role: "Full Stack Developer",
-      company: "Microsoft",
-      location: "New York, NY",
-      time: "1 day ago",
-      type: "Contract",
-      logo: "https://www.google.com/s2/favicons?sz=128&domain=microsoft.com"
-    },
-    {
-      id: 4,
-      role: "Data Analyst",
-      company: "TCS",
-      location: "Chicago, IL",
-      time: "2 days ago",
-      type: "Full-time",
-      logo: "https://www.google.com/s2/favicons?sz=128&domain=tcs.com"
-    },
-    {
-      id: 5,
-      role: "AI Product Manager",
-      company: "Apple",
-      location: "Cupertino, CA",
-      time: "3 days ago",
-      type: "Full-time",
-      logo: "https://www.google.com/s2/favicons?sz=128&domain=apple.com"
-    },
-    {
-      id: 6,
-      role: "Frontend Engineer",
-      company: "Netflix",
-      location: "Los Gatos, CA",
-      time: "4 days ago",
-      type: "Full-time",
-      logo: "https://www.google.com/s2/favicons?sz=128&domain=netflix.com"
-    },
-    {
-      id: 7,
-      role: "Data Scientist",
-      company: "Meta",
-      location: "Menlo Park, CA",
-      time: "1 week ago",
-      type: "Full-time",
-      logo: "https://www.google.com/s2/favicons?sz=128&domain=meta.com"
-    },
-    {
-      id: 8,
-      role: "Backend Engineer",
-      company: "Stripe",
-      location: "Remote",
-      time: "1 week ago",
-      type: "Contract",
-      logo: "https://www.google.com/s2/favicons?sz=128&domain=stripe.com"
-    }
-  ];
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const loadJobs = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchJobs(0, 50);
+        // Map database fields to what JobCard expects
+        const mappedJobs = data.map(job => ({
+          ...job,
+          company: job.company || job.company_name,
+          apply_url: job.apply_url || job.apply_link,
+          required_skills: job.required_skills || job.skills_required || [],
+        }));
+        setJobs(mappedJobs);
+      } catch (err) {
+        console.error('JobsPage error:', err);
+        setError('Failed to load jobs. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadJobs();
+  }, []);
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-white dark:bg-slate-900 transition-colors duration-300 pt-8 pb-20">
+    <div className="min-h-[calc(100vh-64px)] bg-slate-50 dark:bg-slate-900 transition-colors duration-300 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <div className="mb-10">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-4">All Open Roles</h1>
-          <p className="text-lg text-slate-600 dark:text-slate-400">
-            Browse through our curated list of top opportunities tailored for AI and tech professionals.
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">Live Job Aggregation</h1>
+          <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+            Discover the latest opportunities pulled from across the web.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-          {jobs.map((job) => (
-            <div key={job.id} className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow duration-200">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-white dark:bg-slate-800 flex items-center justify-center border border-slate-100 dark:border-slate-700 overflow-hidden shadow-sm p-2">
-                    <img src={job.logo} alt={job.company} className="w-full h-full object-contain" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-snug">{job.role}</h3>
-                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{job.company}</p>
-                  </div>
-                </div>
-                <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-300">
-                  {job.type}
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400 mb-6">
-                <div className="flex items-center gap-1.5">
-                  <IconMapPin className="w-4 h-4" />
-                  {job.location}
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <IconClock className="w-4 h-4" />
-                  {job.time}
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700/50">
-                <div className="text-sm font-medium text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                  <IconBriefcase className="w-4 h-4" />
-                  Active hiring
-                </div>
-                <button className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
-                  Apply Now
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-        
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <svg className="animate-spin h-10 w-10 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+        ) : error ? (
+          <div className="text-center text-red-600 bg-red-50 dark:bg-red-900/20 p-6 rounded-2xl border border-red-100 dark:border-red-800 max-w-lg mx-auto">
+            {error}
+          </div>
+        ) : jobs.length === 0 ? (
+          <div className="text-center text-slate-500 py-12">
+            No jobs found at the moment. Please check back later.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {jobs.map((job) => (
+              <JobCard key={job.id} job={job} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
