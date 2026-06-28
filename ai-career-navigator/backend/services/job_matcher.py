@@ -19,11 +19,15 @@ def match_jobs(resume_skills: list[str], jobs: list[dict]) -> list[dict]:
         matched_norm = resume_norm_set & job_norm_set
         missing_norm = job_norm_set - resume_norm_set
         pct          = round(len(matched_norm) / len(job_norm_set) * 100) if job_norm_set else 0
+        
+        potential_match = round((len(matched_norm) + min(len(missing_norm), 2)) / len(job_norm_set) * 100) if job_norm_set else 0
+        
         results.append({
             **job,
             "match_percentage": pct,
             "matched_skills":   [job_norm_map[s] for s in matched_norm],
             "missing_skills":   [job_norm_map[s] for s in missing_norm],
+            "improvement_potential": potential_match
         })
     return sorted(results, key=lambda x: x["match_percentage"], reverse=True)
 

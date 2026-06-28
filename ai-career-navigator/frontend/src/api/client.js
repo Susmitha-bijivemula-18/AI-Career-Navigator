@@ -25,6 +25,6 @@ export const fetchJobs = async () => {
 };
 
 export const fetchJobMatches = async (skills) => {
-  const response = await client.get(`/jobs/match?skills=${skills.join(',')}`);
+  const response = await client.post('/jobs/recommendations', { skills });
   return response.data;
 };

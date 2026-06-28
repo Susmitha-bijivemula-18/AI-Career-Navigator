@@ -6,7 +6,7 @@ SKILLS_LIST = [
     "Redis", "Docker", "Kubernetes", "AWS", "GCP", "Azure", "Git", "CI/CD",
     "Machine Learning", "Deep Learning", "TensorFlow", "PyTorch",
     "Pandas", "NumPy", "Scikit-learn", "GraphQL", "REST API",
-    "Tailwind CSS", "HTML", "CSS", "Figma", "Linux", "Bash",
+    "Tailwind CSS", "Figma", "Linux", "Bash",
     "Java", "Kotlin", "Swift", "Flutter", "React Native",
-    "Spark", "Hadoop", "Tableau", "Power BI", "Excel", "Agile", "Scrum"
+    "Spark", "Hadoop", "Excel", "Agile", "Scrum", "Spring Boot", "HTML", "CSS", "DSA", "Core Java", "Tailwind CSS" 
 ]

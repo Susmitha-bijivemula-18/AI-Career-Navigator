@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 
 export function useTheme() {
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('theme') || 'light';
+    // Force light theme as default
+    return 'light';
   });
 
   useEffect(() => {

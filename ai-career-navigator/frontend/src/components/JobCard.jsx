@@ -4,12 +4,17 @@ import { createPortal } from 'react-dom';
 import { aiClient } from '../api/aiClient';
 import SkillGapPanel from './SkillGapPanel';
 import MatchSimulator from './MatchSimulator';
+import Toast from './ui/Toast';
+
+import { useNavigate } from 'react-router-dom';
 
 export default function JobCard({ job, resumeSkills }) {
+  const navigate = useNavigate();
   const [gapAnalysis, setGapAnalysis] = useState(null);
   const [loadingGap, setLoadingGap] = useState(false);
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);
   const [showSimulator, setShowSimulator] = useState(false);
+  const [toastMessage, setToastMessage] = useState(null);
 
   const totalSkills = job.required_skills ? job.required_skills.length : 0;
   const skillDelta = totalSkills > 0 ? Math.round(100 / totalSkills) : 0;
@@ -73,18 +78,18 @@ export default function JobCard({ job, resumeSkills }) {
         <div className="flex justify-between items-start gap-4 mb-4">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl border border-slate-100 flex items-center justify-center bg-white overflow-hidden shrink-0 shadow-sm p-2">
-              {!imgError && logoUrl ? (
-                <img 
-                  src={logoUrl} 
-                  alt={job.company} 
-                  className="w-full h-full object-contain" 
-                  onError={() => setImgError(true)}
-                />
-              ) : (
-                <div className="w-full h-full bg-slate-100 text-slate-400 font-bold flex items-center justify-center rounded-lg text-lg">
-                  {job.company ? job.company.charAt(0).toUpperCase() : 'J'}
-                </div>
-              )}
+              <img 
+                src={`https://icon.horse/icon/${domain}`} 
+                alt={job.company} 
+                className="w-full h-full object-contain" 
+                onError={(e) => {
+                  if (e.target.src.includes('icon.horse')) {
+                    e.target.src = `https://ui-avatars.com/api/?name=${job.company || 'C'}&background=e0e7ff&color=4f46e5`;
+                  } else {
+                    e.target.onerror = null;
+                  }
+                }} 
+              />
             </div>
             <div>
               <h3 className="text-[17px] font-extrabold text-slate-900 leading-tight">{job.role}</h3>
@@ -124,15 +129,22 @@ export default function JobCard({ job, resumeSkills }) {
             </svg>
             Active hiring
           </div>
-          <a 
-            href={job.apply_url || "#"} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-lg transition-colors"
+          <button 
+            onClick={() => {
+              navigate(`/jobs/${job.id}`);
+            }}
+            className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-lg transition-colors cursor-pointer"
           >
-            Apply Now
-          </a>
+            View Details
+          </button>
         </div>
+
+        {toastMessage && (
+          <Toast 
+            message={toastMessage} 
+            onClose={() => setToastMessage(null)} 
+          />
+        )}
 
         {/* AI Analysis Section (Visible if we have skills or gap analysis) */}
         {resumeSkills && (

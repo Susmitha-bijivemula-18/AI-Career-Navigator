@@ -10,15 +10,19 @@ function ThemeProvider({ children }) {
   return <>{children}</>;
 }
 
+import { AuthProvider } from './contexts/AuthContext';
+
 function App() {
   return (
     <BrowserRouter>
-      <ThemeProvider>
-        <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
-          <Navbar />
-          <AppRouter />
-        </div>
-      </ThemeProvider>
+      <AuthProvider>
+        <ThemeProvider>
+          <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
+            <Navbar />
+            <AppRouter />
+          </div>
+        </ThemeProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

@@ -3,17 +3,23 @@ import json
 from fastapi import APIRouter, HTTPException
 from models.schemas_v2 import GapAnalysisRequest, GapAnalysisResponse
 from services.gap_analyzer import analyze_gap
-
-from routes.jobs import load_jobs
+from adapters.supabase_job_repository import SupabaseJobRepository
 from datetime import datetime
 
 router = APIRouter()
+repo = SupabaseJobRepository()
 
 @router.post("", response_model=GapAnalysisResponse)
 async def analyze_skill_gap(request: GapAnalysisRequest):
-    jobs = load_jobs()
-    # Find job by id (handling int vs str safely)
-    job = next((j for j in jobs if str(j.get("id")) == str(request.job_id)), None)
+    # Retrieve the specific job by id
+    try:
+        # We need a way to get a job by ID from the repo.
+        # But if the repo only has get_jobs, we can fetch it like this:
+        jobs = repo.get_jobs(filters={"id": request.job_id}, limit=1)
+        job = jobs[0] if jobs else None
+    except Exception as e:
+        job = None
+
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
 

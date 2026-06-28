@@ -78,7 +78,8 @@ class RecommendedJob(BaseModel):
     match_percentage: int
     composite_score: int
     reason: str
-    apply_url: str = ""
+    job_apply_link: Optional[str] = None
+    company_careers_link: Optional[str] = None
 
 class RecommendResponse(BaseModel):
     top_jobs: List[RecommendedJob]

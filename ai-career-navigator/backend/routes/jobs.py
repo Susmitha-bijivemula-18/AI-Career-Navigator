@@ -1,41 +1,86 @@
-# routes/jobs.py - Endpoints for getting jobs and matching skills
-import json
 import os
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, HTTPException, Query, Body
+from typing import List, Optional, Dict, Any
+from adapters.supabase_job_repository import SupabaseJobRepository
+from core.logging import log
 from services.job_matcher import match_jobs
 
 router = APIRouter()
-
-# Load jobs from JSON file
-JOBS_FILE = os.path.join(os.path.dirname(__file__), "..", "data", "jobs.json")
-
-def load_jobs():
-    try:
-        with open(JOBS_FILE, "r") as f:
-            return json.load(f)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="Failed to load jobs data.")
+repo = SupabaseJobRepository()
 
 @router.get("/")
-def get_all_jobs():
+def get_jobs(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=100),
+    role: Optional[str] = None,
+    location: Optional[str] = None,
+    experience_level: Optional[str] = None,
+    employment_type: Optional[str] = None
+):
     """
-    Returns all jobs without match data.
+    Returns jobs fetched from Supabase using JobRepository.
     """
-    jobs = load_jobs()
-    return jobs
+    try:
+        filters = {}
+        if role: filters["role"] = role
+        if location: filters["location"] = location
+        if experience_level: filters["experience_level"] = experience_level
+        if employment_type: filters["employment_type"] = employment_type
+        
+        jobs = repo.get_jobs(filters=filters, limit=limit, offset=skip)
+        return jobs
+    except Exception as e:
+        log.error("fetch_jobs_error", error=str(e))
+        raise HTTPException(status_code=500, detail="Failed to fetch jobs from database.")
 
-@router.get("/match")
-def match_skills_with_jobs(skills: str = Query(..., description="Comma-separated list of skills")):
+@router.get("/{job_id}")
+def get_job(job_id: str):
     """
-    Returns matched jobs sorted by match percentage based on provided skills.
+    Returns a single job by ID.
     """
-    if not skills:
-        return []
-    
-    # Split the skills string into a list
-    skill_list = [s.strip() for s in skills.split(",") if s.strip()]
-    
-    jobs = load_jobs()
-    matched_jobs = match_jobs(skill_list, jobs)
-    
-    return matched_jobs
+    try:
+        job = repo.get_job_by_id(job_id)
+        if not job:
+            raise HTTPException(status_code=404, detail="Job not found")
+        return job
+    except HTTPException:
+        raise
+    except Exception as e:
+        log.error("fetch_job_error", error=str(e))
+        raise HTTPException(status_code=500, detail="Failed to fetch job.")
+
+@router.get("/search")
+def search_jobs(
+    q: str = Query(..., min_length=2),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=100)
+):
+    """
+    Full-text search on role and company_name.
+    """
+    try:
+        jobs = repo.search_jobs(query=q, limit=limit, offset=skip)
+        return jobs
+    except Exception as e:
+        log.error("search_jobs_error", error=str(e))
+        raise HTTPException(status_code=500, detail="Failed to search jobs.")
+
+@router.post("/recommendations")
+def recommend_jobs(payload: Dict[str, Any] = Body(...)):
+    """
+    Takes user's parsed skills & preferences, returns ranked job list with match %.
+    Payload: {"skills": ["Python", "React", "AWS"]}
+    """
+    try:
+        user_skills = payload.get("skills", [])
+        if not user_skills:
+            return []
+            
+        # Fetch active jobs (we fetch a reasonable batch to rank)
+        all_jobs = repo.get_jobs(limit=500)
+        
+        matched_jobs = match_jobs(user_skills, all_jobs)
+        return matched_jobs
+    except Exception as e:
+        log.error("recommendations_error", error=str(e))
+        raise HTTPException(status_code=500, detail="Failed to generate recommendations.")

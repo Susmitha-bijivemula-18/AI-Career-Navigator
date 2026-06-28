@@ -1,72 +1,92 @@
 [
   {
     "id": 1,
-    "company": "TechCorp",
-    "role": "Frontend Developer",
-    "required_skills": ["React", "JavaScript", "TypeScript", "Tailwind CSS", "HTML", "CSS"],
-    "apply_url": "https://example.com/apply/1"
+    "company": "Amazon",
+    "role": "Senior AI Engineer",
+    "location": "Hyderabad",
+    "required_skills": ["Python", "AWS", "Machine Learning", "Deep Learning", "TensorFlow"],
+    "description": "Join our AI team to build the next generation of intelligent systems.",
+    "apply_url": "https://amazon.jobs"
   },
   {
     "id": 2,
-    "company": "DataSystems Inc.",
-    "role": "Backend Engineer",
-    "required_skills": ["Python", "FastAPI", "SQL", "PostgreSQL", "Docker", "Redis"],
-    "apply_url": "https://example.com/apply/2"
+    "company": "Google",
+    "role": "Machine Learning Scientist",
+    "location": "Bangalore",
+    "required_skills": ["Python", "GCP", "PyTorch", "NLP", "Computer Vision"],
+    "description": "Research and develop cutting edge ML algorithms.",
+    "apply_url": "https://careers.google.com"
   },
   {
     "id": 3,
-    "company": "AI Innovations",
-    "role": "Data Scientist",
-    "required_skills": ["Python", "Pandas", "NumPy", "Scikit-learn", "SQL", "Machine Learning"],
-    "apply_url": "https://example.com/apply/3"
+    "company": "Microsoft",
+    "role": "Full Stack Developer",
+    "location": "Hyderabad",
+    "required_skills": ["C#", ".NET", "React", "Azure", "SQL Server"],
+    "description": "Develop scalable full stack web applications.",
+    "apply_url": "https://careers.microsoft.com"
   },
   {
     "id": 4,
-    "company": "CloudWorks",
-    "role": "DevOps Engineer",
-    "required_skills": ["Linux", "Bash", "Docker", "Kubernetes", "AWS", "CI/CD"],
-    "apply_url": "https://example.com/apply/4"
+    "company": "TCS",
+    "role": "Data Analyst",
+    "location": "Chennai",
+    "required_skills": ["SQL", "Excel", "Tableau", "Power BI", "Data Visualization"],
+    "description": "Analyze complex datasets and provide actionable insights.",
+    "apply_url": "https://www.tcs.com/careers"
   },
   {
     "id": 5,
-    "company": "WebSolutions",
-    "role": "Full Stack Developer",
-    "required_skills": ["JavaScript", "Node.js", "React", "PostgreSQL", "REST API", "Git"],
-    "apply_url": "https://example.com/apply/5"
+    "company": "Infosys",
+    "role": "Cloud Architect",
+    "location": "Pune",
+    "required_skills": ["AWS", "Azure", "Kubernetes", "Docker", "Terraform"],
+    "description": "Design and implement scalable cloud infrastructure.",
+    "apply_url": "https://www.infosys.com/careers"
   },
   {
     "id": 6,
-    "company": "DeepMindTech",
-    "role": "ML Engineer",
-    "required_skills": ["Python", "TensorFlow", "PyTorch", "Deep Learning", "Docker", "AWS"],
-    "apply_url": "https://example.com/apply/6"
+    "company": "Wipro",
+    "role": "DevOps Engineer",
+    "location": "Bangalore",
+    "required_skills": ["Linux", "Jenkins", "Git", "Ansible", "Docker"],
+    "description": "Automate our deployment pipelines and manage infrastructure.",
+    "apply_url": "https://careers.wipro.com"
   },
   {
     "id": 7,
-    "company": "Global Systems",
-    "role": "Cloud Architect",
-    "required_skills": ["AWS", "GCP", "Azure", "Kubernetes", "Linux", "Docker"],
-    "apply_url": "https://example.com/apply/7"
+    "company": "Flipkart",
+    "role": "Data Scientist",
+    "location": "Bangalore",
+    "required_skills": ["Python", "Machine Learning", "Statistics", "SQL", "Spark"],
+    "description": "Drive e-commerce innovations with data science.",
+    "apply_url": "https://www.flipkartcareers.com"
   },
   {
     "id": 8,
-    "company": "QualityFirst",
-    "role": "QA Engineer",
-    "required_skills": ["Python", "JavaScript", "CI/CD", "Agile", "REST API", "Linux"],
-    "apply_url": "https://example.com/apply/8"
+    "company": "Cognizant",
+    "role": "Frontend Developer",
+    "location": "Chennai",
+    "required_skills": ["React", "JavaScript", "TypeScript", "HTML", "CSS"],
+    "description": "Build responsive and performant web interfaces.",
+    "apply_url": "https://careers.cognizant.com"
   },
   {
     "id": 9,
-    "company": "Productive Analytics",
-    "role": "Product Analyst",
-    "required_skills": ["SQL", "Excel", "Tableau", "Power BI", "Agile", "Scrum"],
-    "apply_url": "https://example.com/apply/9"
+    "company": "Tech Mahindra",
+    "role": "Backend Engineer",
+    "location": "Noida",
+    "required_skills": ["Java", "Spring Boot", "Microservices", "MySQL", "Kafka"],
+    "description": "Develop robust backend services for enterprise clients.",
+    "apply_url": "https://careers.techmahindra.com"
   },
   {
     "id": 10,
-    "company": "AppMakers",
-    "role": "Mobile Developer",
-    "required_skills": ["Swift", "Kotlin", "React Native", "Flutter", "REST API", "Git"],
-    "apply_url": "https://example.com/apply/10"
+    "company": "Zoho",
+    "role": "Product Engineer",
+    "location": "Chennai",
+    "required_skills": ["Java", "JavaScript", "SQL", "Problem Solving", "Algorithms"],
+    "description": "Build world-class SaaS products used by millions.",
+    "apply_url": "https://www.zoho.com/careers"
   }
 ]

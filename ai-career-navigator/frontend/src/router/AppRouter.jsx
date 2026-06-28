@@ -4,9 +4,13 @@ import HomePage from '../pages/HomePage';
 import LoginPage from '../pages/LoginPage';
 import NotFoundPage from '../pages/NotFoundPage';
 
+import ProtectedRoute from '../components/auth/ProtectedRoute';
+
 // Lazy load Pages
 const DashboardPage = React.lazy(() => import('../pages/DashboardPage'));
 const JobsPage = React.lazy(() => import('../pages/JobsPage'));
+const JobDetailsPage = React.lazy(() => import('../pages/JobDetailsPage'));
+const ApplicationTrackerPage = React.lazy(() => import('../pages/ApplicationTrackerPage'));
 
 export default function AppRouter() {
   return (
@@ -17,9 +21,21 @@ export default function AppRouter() {
       <Route 
         path="/dashboard" 
         element={
-          <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
-            <DashboardPage />
-          </Suspense>
+          <ProtectedRoute>
+            <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+              <DashboardPage />
+            </Suspense>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/tracker" 
+        element={
+          <ProtectedRoute>
+            <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+              <ApplicationTrackerPage />
+            </Suspense>
+          </ProtectedRoute>
         } 
       />
       <Route 
@@ -27,6 +43,14 @@ export default function AppRouter() {
         element={
           <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
             <JobsPage />
+          </Suspense>
+        } 
+      />
+      <Route 
+        path="/jobs/:id" 
+        element={
+          <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+            <JobDetailsPage />
           </Suspense>
         } 
       />

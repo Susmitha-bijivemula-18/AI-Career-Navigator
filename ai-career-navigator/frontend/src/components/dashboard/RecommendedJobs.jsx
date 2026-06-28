@@ -1,7 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { IconArrowRight } from '@tabler/icons-react';
 
 export default function RecommendedJobs({ jobs, isLoading }) {
+  const navigate = useNavigate();
+  
   if (isLoading) {
     return (
       <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm min-h-[350px]">
@@ -38,10 +41,14 @@ export default function RecommendedJobs({ jobs, isLoading }) {
       
       <div className="flex-1 divide-y divide-slate-100 dark:divide-slate-700/50">
         {displayJobs.map((job, idx) => (
-          <div key={idx} className="p-5 hover:bg-white dark:hover:bg-slate-700/50 transition-colors flex items-center justify-between group cursor-pointer">
+          <div 
+            key={idx} 
+            onClick={() => navigate(`/jobs/${job.job_id || job.id}`)}
+            className="p-5 hover:bg-white dark:hover:bg-slate-700/50 transition-colors flex items-center justify-between group cursor-pointer"
+          >
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-lg bg-white dark:bg-slate-800 flex items-center justify-center border border-slate-100 dark:border-slate-700 overflow-hidden shadow-sm p-1.5 group-hover:border-indigo-200 dark:group-hover:border-indigo-500/50 transition-colors">
-                <img src={`https://www.google.com/s2/favicons?sz=128&domain=${job.company?.toLowerCase()?.replace(/\s+/g, '')}.com`} alt={job.company} className="w-full h-full object-contain" onError={(e) => { e.target.onerror = null; e.target.src = 'https://ui-avatars.com/api/?name=' + (job.company || 'C') + '&background=e0e7ff&color=4f46e5'; }} />
+                <img src={`https://icon.horse/icon/${job.company?.toLowerCase()?.replace(/[^a-z0-9]/g, '')}.com`} alt={job.company} className="w-full h-full object-contain" onError={(e) => { e.target.onerror = null; e.target.src = 'https://ui-avatars.com/api/?name=' + (job.company || 'C') + '&background=e0e7ff&color=4f46e5'; }} />
               </div>
               <div>
                 <h4 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">

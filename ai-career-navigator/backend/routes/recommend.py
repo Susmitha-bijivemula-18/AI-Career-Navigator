@@ -5,10 +5,11 @@ from services.dashboard import compute_dashboard
 from services.recommender import composite_score
 from services.llm_client import call_llm_json
 from prompts.learning_path import SYSTEM_PROMPT_LEARNING_PATH, get_user_prompt_learning_path
-from routes.jobs import load_jobs
+from adapters.supabase_job_repository import SupabaseJobRepository
 from services.database import supabase
 
 router = APIRouter()
+repo = SupabaseJobRepository()
 
 @router.get("", response_model=RecommendResponse)
 async def get_recommendations(resume_id: str):
@@ -25,7 +26,7 @@ async def get_recommendations(resume_id: str):
     experience_level = resume.get("experience_level", "Junior")
     predicted_roles = resume.get("predicted_roles", [])
     
-    all_jobs = load_jobs()
+    all_jobs = repo.get_jobs(limit=500)
     
     # 1. Rank jobs
     ranked_jobs = []
@@ -44,7 +45,8 @@ async def get_recommendations(resume_id: str):
             match_percentage=match_pct,
             composite_score=score,
             reason=reason,
-            apply_url=job.get("apply_url", "")
+            job_apply_link=job.get("job_apply_link"),
+            company_careers_link=job.get("company_careers_link", f"https://careers.{job.get('company_name', '').lower().replace(' ', '')}.com")
         ))
         
     ranked_jobs.sort(key=lambda x: x.composite_score, reverse=True)

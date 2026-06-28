@@ -2,14 +2,19 @@
 from fastapi import APIRouter, HTTPException
 from models.schemas_v2 import SimulateRequest, SimulateResponse
 from services.gap_analyzer import analyze_gap
-from routes.jobs import load_jobs
+from adapters.supabase_job_repository import SupabaseJobRepository
 
 router = APIRouter()
+repo = SupabaseJobRepository()
 
-@router.post("/match", response_model=SimulateResponse)
-async def simulate_match(request: SimulateRequest):
-    jobs = load_jobs()
-    job = next((j for j in jobs if str(j.get("id")) == str(request.job_id)), None)
+@router.post("", response_model=SimulateResponse)
+async def simulate_match_improvement(request: SimulateRequest):
+    try:
+        jobs = repo.get_jobs(filters={"id": request.job_id}, limit=1)
+        job = jobs[0] if jobs else None
+    except Exception:
+        job = None
+        
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
 
