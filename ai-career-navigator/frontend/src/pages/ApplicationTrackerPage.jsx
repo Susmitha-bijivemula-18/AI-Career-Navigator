@@ -39,11 +39,11 @@ export default function ApplicationTrackerPage() {
         const { data: saved, error: savedError } = await supabase
           .from('saved_jobs')
           .select(`
-            id, saved_at,
+            id, created_at,
             jobs ( id, role, company_name, location, employment_type, company_logo, source )
           `)
           .eq('user_id', user.id)
-          .order('saved_at', { ascending: false });
+          .order('created_at', { ascending: false });
 
         if (savedError) throw savedError;
 
@@ -146,11 +146,13 @@ export default function ApplicationTrackerPage() {
         ) : (
           <div className="grid gap-4">
             {currentList.map((item) => {
-              const job = item.jobs;
+              let job = item.jobs;
+              if (Array.isArray(job)) job = job[0];
               if (!job) return null; // Handle if job was deleted
               
-              const domain = job.company_name ? `${job.company_name.toLowerCase().replace(/[^a-z0-9]/g, '')}.com` : null;
-              const date = new Date(activeTab === 'applied' ? item.applied_at : item.saved_at).toLocaleDateString();
+              const companyName = job.company_name || job.company || 'Company';
+              const domain = companyName ? `${companyName.toLowerCase().replace(/[^a-z0-9]/g, '')}.com` : null;
+              const date = new Date(activeTab === 'applied' ? item.applied_at : item.created_at).toLocaleDateString();
 
               return (
                 <div 
@@ -162,10 +164,10 @@ export default function ApplicationTrackerPage() {
                     <div className="w-14 h-14 bg-white dark:bg-slate-700 rounded-xl border border-slate-100 dark:border-slate-600 flex items-center justify-center p-2 shrink-0">
                       <img 
                         src={`https://icon.horse/icon/${domain}`} 
-                        alt={job.company_name} 
+                        alt={companyName} 
                         className="w-full h-full object-contain"
                         onError={(e) => {
-                          e.target.src = `https://ui-avatars.com/api/?name=${job.company_name}&background=e0e7ff&color=4f46e5`;
+                          e.target.src = `https://ui-avatars.com/api/?name=${companyName}&background=e0e7ff&color=4f46e5`;
                         }}
                       />
                     </div>
@@ -175,7 +177,7 @@ export default function ApplicationTrackerPage() {
                       </h3>
                       <p className="text-sm font-medium text-slate-600 dark:text-slate-400 flex items-center gap-1.5 mt-1">
                         <IconBuilding size={16} />
-                        {job.company_name}
+                        {companyName}
                       </p>
                       <div className="flex items-center gap-4 mt-2 text-xs font-medium text-slate-500 dark:text-slate-500">
                         <span className="flex items-center gap-1">

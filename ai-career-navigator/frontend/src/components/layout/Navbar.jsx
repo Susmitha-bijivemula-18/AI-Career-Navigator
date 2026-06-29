@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../../hooks/useTheme';
 import { useAuth } from '../../contexts/AuthContext';
-import { IconMoon, IconSun, IconSparkles, IconUser, IconLogout, IconBriefcase, IconDashboard } from '@tabler/icons-react';
+import { IconMoon, IconSun, IconSparkles, IconUser, IconLogout, IconBriefcase, IconDashboard, IconBookmark } from '@tabler/icons-react';
 
 export default function Navbar() {
   const { theme, toggleTheme } = useTheme();
@@ -33,6 +33,7 @@ export default function Navbar() {
 
   const navLinks = [
     { name: 'Home', path: '/' },
+    { name: 'Resume Analysis', path: '/dashboard' },
     { name: 'Jobs', path: '/jobs' },
   ];
 
@@ -110,21 +111,22 @@ export default function Navbar() {
                     </div>
                     
                     <div className="py-2">
+                      <div className="px-4 py-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">Job Tracker</div>
                       <Link 
-                        to="/tracker" 
+                        to="/applications" 
                         onClick={() => setIsDropdownOpen(false)}
                         className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                       >
                         <IconBriefcase size={18} />
-                        Job Tracker
+                        My Applications
                       </Link>
                       <Link 
-                        to="/dashboard" 
+                        to="/saved-jobs" 
                         onClick={() => setIsDropdownOpen(false)}
                         className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                       >
-                        <IconDashboard size={18} />
-                        Resume Analysis
+                        <IconBookmark size={18} />
+                        Saved Jobs
                       </Link>
                     </div>
 

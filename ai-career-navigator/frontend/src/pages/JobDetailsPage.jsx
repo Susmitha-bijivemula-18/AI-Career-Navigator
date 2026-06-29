@@ -14,7 +14,8 @@ import {
   IconX,
   IconBuilding,
   IconReportAnalytics,
-  IconLock
+  IconLock,
+  IconChecklist
 } from '@tabler/icons-react';
 
 export default function JobDetailsPage() {
@@ -113,6 +114,7 @@ export default function JobDetailsPage() {
       setShowAuthModal(true);
       return;
     }
+    
     handleApplyInternal();
   };
 
@@ -185,6 +187,35 @@ export default function JobDetailsPage() {
   const matchPct = job.required_skills.length > 0 
     ? Math.round((mockMatchedSkills.length / job.required_skills.length) * 100) 
     : 85;
+
+  const getHiringProcess = (companyName) => {
+    const name = (companyName || '').toLowerCase();
+    if (['google', 'meta', 'facebook', 'amazon', 'apple', 'netflix', 'microsoft'].includes(name)) {
+      return [
+        { step: 1, title: 'Application Review', desc: 'Recruiter screens your resume.' },
+        { step: 2, title: 'Online Assessment', desc: 'Coding or technical test (usually 90 mins).' },
+        { step: 3, title: 'Phone Screen', desc: 'Technical interview with an engineer (45 mins).' },
+        { step: 4, title: 'Virtual Onsite', desc: '4-5 rounds of coding, system design, and behavioral.' },
+        { step: 5, title: 'Offer & Team Match', desc: 'Finalizing compensation and finding your specific team.' }
+      ];
+    } else if (['stripe', 'uber', 'airbnb', 'doordash', 'lyft'].includes(name)) {
+      return [
+        { step: 1, title: 'Recruiter Chat', desc: 'Initial call to discuss your background.' },
+        { step: 2, title: 'Technical Screen', desc: 'Live coding session or take-home project.' },
+        { step: 3, title: 'Onsite Interviews', desc: 'Deep dive into architecture, coding, and culture fit.' },
+        { step: 4, title: 'Offer Stage', desc: 'Final approval from hiring committee.' }
+      ];
+    } else {
+      return [
+        { step: 1, title: 'Initial Screening', desc: 'Call with HR or recruiter (30 mins).' },
+        { step: 2, title: 'Technical Interview', desc: 'Live technical assessment or whiteboard session.' },
+        { step: 3, title: 'Culture Fit / Manager Chat', desc: 'Conversation with the hiring manager.' },
+        { step: 4, title: 'Offer Stage', desc: 'Reference checks and offer negotiation.' }
+      ];
+    }
+  };
+  
+  const hiringSteps = getHiringProcess(job.company);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300 pb-20">
@@ -286,13 +317,25 @@ export default function JobDetailsPage() {
 
             {/* Hiring Process Section */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-8 shadow-sm">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6">Hiring Process</h2>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                <IconChecklist className="text-indigo-500" />
+                Estimated Hiring Process
+              </h2>
               
-              <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-xl border border-slate-100 dark:border-slate-800 text-center">
-                <p className="text-slate-500 dark:text-slate-400 font-medium">
-                  Hiring process information is currently unavailable.
-                </p>
+              <div className="relative border-l-2 border-indigo-100 dark:border-indigo-900/50 ml-4 space-y-8 pb-4">
+                {hiringSteps.map((step, idx) => (
+                  <div key={idx} className="relative pl-8">
+                    <div className="absolute -left-[17px] bg-indigo-100 dark:bg-indigo-900/50 w-8 h-8 rounded-full flex items-center justify-center border-4 border-white dark:border-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400 font-bold text-sm">
+                      {step.step}
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-bold text-slate-900 dark:text-white">{step.title}</h4>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{step.desc}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
+              <p className="text-xs text-slate-400 mt-4 italic text-right">* This process is estimated based on company trends.</p>
             </div>
             
           </div>
@@ -456,13 +499,13 @@ export default function JobDetailsPage() {
             </div>
             <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white mb-2">Applied Successfully!</h3>
             <p className="text-slate-500 dark:text-slate-400 mb-8 font-medium">
-              Your application for <span className="text-slate-900 dark:text-white font-bold">{job.role}</span> at <span className="text-slate-900 dark:text-white font-bold">{job.company}</span> has been securely submitted.
+              Your application has been applied and you can see your processes in your application tracker.
             </p>
             <button 
-              onClick={() => setShowSuccessModal(false)}
+              onClick={() => navigate('/applications')}
               className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg active:translate-y-0.5"
             >
-              Continue Browsing
+              View in Application Tracker
             </button>
           </div>
         </div>

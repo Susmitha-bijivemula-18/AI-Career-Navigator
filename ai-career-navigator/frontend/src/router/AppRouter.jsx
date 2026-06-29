@@ -10,7 +10,9 @@ import ProtectedRoute from '../components/auth/ProtectedRoute';
 const DashboardPage = React.lazy(() => import('../pages/DashboardPage'));
 const JobsPage = React.lazy(() => import('../pages/JobsPage'));
 const JobDetailsPage = React.lazy(() => import('../pages/JobDetailsPage'));
-const ApplicationTrackerPage = React.lazy(() => import('../pages/ApplicationTrackerPage'));
+const ApplicationsDashboard = React.lazy(() => import('../pages/ApplicationsDashboard/index'));
+const ApplicationDetails = React.lazy(() => import('../pages/ApplicationDetails/index'));
+const SavedJobsPage = React.lazy(() => import('../pages/SavedJobsPage'));
 
 export default function AppRouter() {
   return (
@@ -21,19 +23,27 @@ export default function AppRouter() {
       <Route 
         path="/dashboard" 
         element={
+          <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+            <DashboardPage />
+          </Suspense>
+        } 
+      />
+      <Route 
+        path="/applications" 
+        element={
           <ProtectedRoute>
             <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
-              <DashboardPage />
+              <ApplicationsDashboard />
             </Suspense>
           </ProtectedRoute>
         } 
       />
       <Route 
-        path="/tracker" 
+        path="/applications/:id" 
         element={
           <ProtectedRoute>
             <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
-              <ApplicationTrackerPage />
+              <ApplicationDetails />
             </Suspense>
           </ProtectedRoute>
         } 
@@ -41,17 +51,31 @@ export default function AppRouter() {
       <Route 
         path="/jobs" 
         element={
-          <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
-            <JobsPage />
-          </Suspense>
+          <ProtectedRoute>
+            <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+              <JobsPage />
+            </Suspense>
+          </ProtectedRoute>
         } 
       />
       <Route 
         path="/jobs/:id" 
         element={
-          <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
-            <JobDetailsPage />
-          </Suspense>
+          <ProtectedRoute>
+            <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+              <JobDetailsPage />
+            </Suspense>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/saved-jobs" 
+        element={
+          <ProtectedRoute>
+            <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+              <SavedJobsPage />
+            </Suspense>
+          </ProtectedRoute>
         } 
       />
       <Route path="*" element={<NotFoundPage />} />

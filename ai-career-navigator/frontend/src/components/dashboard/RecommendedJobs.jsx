@@ -40,32 +40,47 @@ export default function RecommendedJobs({ jobs, isLoading }) {
       </div>
       
       <div className="flex-1 divide-y divide-slate-100 dark:divide-slate-700/50">
-        {displayJobs.map((job, idx) => (
-          <div 
-            key={idx} 
-            onClick={() => navigate(`/jobs/${job.job_id || job.id}`)}
-            className="p-5 hover:bg-white dark:hover:bg-slate-700/50 transition-colors flex items-center justify-between group cursor-pointer"
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-lg bg-white dark:bg-slate-800 flex items-center justify-center border border-slate-100 dark:border-slate-700 overflow-hidden shadow-sm p-1.5 group-hover:border-indigo-200 dark:group-hover:border-indigo-500/50 transition-colors">
-                <img src={`https://icon.horse/icon/${job.company?.toLowerCase()?.replace(/[^a-z0-9]/g, '')}.com`} alt={job.company} className="w-full h-full object-contain" onError={(e) => { e.target.onerror = null; e.target.src = 'https://ui-avatars.com/api/?name=' + (job.company || 'C') + '&background=e0e7ff&color=4f46e5'; }} />
+        {displayJobs.map((job, idx) => {
+          const companyName = job.company_name || job.company || 'Unknown Company';
+          const roleName = job.role || job.title || 'Unknown Role';
+          const domain = companyName !== 'Unknown Company' ? `${companyName.toLowerCase().replace(/[^a-z0-9]/g, '')}.com` : null;
+          
+          return (
+            <div 
+              key={idx} 
+              onClick={() => navigate(`/jobs/${job.job_id || job.id}`)}
+              className="p-5 hover:bg-white dark:hover:bg-slate-700/50 transition-colors flex items-center justify-between group cursor-pointer"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-lg bg-white dark:bg-slate-800 flex items-center justify-center border border-slate-100 dark:border-slate-700 overflow-hidden shadow-sm p-1.5 group-hover:border-indigo-200 dark:group-hover:border-indigo-500/50 transition-colors flex-shrink-0">
+                  <img 
+                    src={`https://icon.horse/icon/${domain}`} 
+                    alt={companyName} 
+                    className="w-full h-full object-contain" 
+                    onError={(e) => { 
+                      if (e.target.src.includes('icon.horse')) {
+                        e.target.src = `https://ui-avatars.com/api/?name=${companyName}&background=e0e7ff&color=4f46e5`;
+                      }
+                    }} 
+                  />
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
+                    {roleName}
+                  </h4>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                    {companyName} • {job.salary_min ? `$${job.salary_min/1000}k` : (job.salary || 'Competitive')}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h4 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                  {job.title || job.role}
-                </h4>
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
-                  {job.company} • {job.salary_min ? `$${job.salary_min/1000}k` : 'Competitive'}
-                </p>
+              <div className="flex-shrink-0 ml-2">
+                <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                  {Math.round(job.match_score * 100 || 85)}% Match
+                </span>
               </div>
             </div>
-            <div className="flex-shrink-0 ml-2">
-              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
-                {Math.round(job.match_score * 100 || 85)}% Match
-              </span>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
       
       <div className="p-4 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800/50">

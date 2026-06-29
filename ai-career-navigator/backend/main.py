@@ -17,6 +17,7 @@ from routes.insights import router as insights_router
 from routes.hiring import router as hiring_router
 from routes.analytics import router as analytics_router
 from routes.saved import router as saved_router
+from routes.applications import router as applications_router
 
 # Phase 3 database/caching/scheduling helper imports
 
@@ -56,6 +57,7 @@ app.include_router(insights_router, prefix="/insights", tags=["Insights"])
 app.include_router(hiring_router, prefix="/hiring", tags=["Hiring Intel"])
 app.include_router(analytics_router, prefix="/analytics", tags=["Analytics"])
 app.include_router(saved_router, prefix="/saved", tags=["Saved Jobs"])
+app.include_router(applications_router, prefix="/applications", tags=["Applications"])
 
 @app.get("/")
 def health_check():

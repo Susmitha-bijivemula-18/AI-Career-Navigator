@@ -16,6 +16,9 @@ export const AuthProvider = ({ children }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+    }).catch((err) => {
+      console.error("Auth session error:", err);
+      setLoading(false);
     });
 
     // Listen for auth changes
@@ -68,7 +71,13 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {loading ? (
+        <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-slate-900">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+        </div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 };

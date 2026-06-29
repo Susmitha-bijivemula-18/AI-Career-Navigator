@@ -1,6 +1,7 @@
 # backend/models/schemas_v3.py - Pydantic v2 models for Phase 3 API responses
 from pydantic import BaseModel
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
+from datetime import datetime
 
 class JobResponse(BaseModel):
     id: str
@@ -56,3 +57,25 @@ class AnalyticsResponse(BaseModel):
     match_scores: List[MatchScore]
     avg_match_pct: float
     top_missing: List[str]
+
+class ApplicationTimelineEntry(BaseModel):
+    id: str
+    old_status: Optional[str] = None
+    new_status: str
+    changed_at: datetime
+
+class ApplicationResponse(BaseModel):
+    id: str
+    job_id: str
+    status: str
+    notes: Optional[str] = None
+    applied_at: datetime
+    updated_at: Optional[datetime] = None
+    job_details: Optional[Dict[str, Any]] = None
+    timeline: Optional[List[ApplicationTimelineEntry]] = None
+
+class UpdateApplicationStatusRequest(BaseModel):
+    status: str
+
+class UpdateApplicationNotesRequest(BaseModel):
+    notes: str
